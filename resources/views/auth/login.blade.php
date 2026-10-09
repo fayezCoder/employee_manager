@@ -4,6 +4,33 @@
         <p class="text-sm text-gray-500 mt-1">أدخل بيانات الحساب للوصول لنظام الحضور</p>
     </div>
 
+    <!-- Demo Banner & One-Click Auto-Fill -->
+    <div class="mb-6 p-4 bg-slate-50 border border-indigo-100 rounded-xl">
+        <div class="flex items-center gap-2 text-indigo-700 text-sm font-semibold mb-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span>حسابات العرض التجريبي (Demo Credentials)</span>
+        </div>
+        <p class="text-xs text-slate-600 mb-3 leading-relaxed">
+            يمكنك الضغط على أي زر أدناه للتعبئة الفورية وتجربة النظام بالدور المناسب:
+        </p>
+        <div class="grid grid-cols-2 gap-2">
+            <button type="button" onclick="fillCredentials('admin@example.com', 'password')" class="w-full text-right p-2.5 bg-white hover:bg-indigo-50 border border-indigo-200 rounded-lg text-xs font-medium text-slate-800 transition flex flex-col gap-0.5 shadow-sm group">
+                <span class="text-indigo-600 font-bold group-hover:text-indigo-700 flex items-center justify-between">
+                    <span>👑 حساب مدير</span>
+                    <span class="text-[10px] bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded">تعبئة</span>
+                </span>
+                <span class="text-slate-500 text-[11px] dir-ltr text-right">admin@example.com</span>
+            </button>
+            <button type="button" onclick="fillCredentials('employee@example.com', 'password')" class="w-full text-right p-2.5 bg-white hover:bg-emerald-50 border border-emerald-200 rounded-lg text-xs font-medium text-slate-800 transition flex flex-col gap-0.5 shadow-sm group">
+                <span class="text-emerald-600 font-bold group-hover:text-emerald-700 flex items-center justify-between">
+                    <span>👨‍💼 حساب موظف</span>
+                    <span class="text-[10px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded">تعبئة</span>
+                </span>
+                <span class="text-slate-500 text-[11px] dir-ltr text-right">employee@example.com</span>
+            </button>
+        </div>
+    </div>
+
     <!-- Session Status -->
     <x-auth-session-status class="mb-4" :status="session('status')" />
 
@@ -39,4 +66,11 @@
             </button>
         </div>
     </form>
+
+    <script>
+        function fillCredentials(email, password) {
+            document.getElementById('email').value = email;
+            document.getElementById('password').value = password;
+        }
+    </script>
 </x-guest-layout>
