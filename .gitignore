@@ -25,3 +25,8 @@ _ide_helper.php
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# Deployment files
+*.zip
+*.sql
+root_htaccess_for_hostinger.txt
