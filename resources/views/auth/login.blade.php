@@ -21,12 +21,12 @@
                 </span>
                 <span class="text-slate-500 text-[11px] dir-ltr text-right">admin@example.com</span>
             </button>
-            <button type="button" onclick="fillCredentials('employee@example.com', 'password')" class="w-full text-right p-2.5 bg-white hover:bg-emerald-50 border border-emerald-200 rounded-lg text-xs font-medium text-slate-800 transition flex flex-col gap-0.5 shadow-sm group">
+            <button type="button" onclick="fillCredentials('sara@example.com', 'password')" class="w-full text-right p-2.5 bg-white hover:bg-emerald-50 border border-emerald-200 rounded-lg text-xs font-medium text-slate-800 transition flex flex-col gap-0.5 shadow-sm group">
                 <span class="text-emerald-600 font-bold group-hover:text-emerald-700 flex items-center justify-between">
                     <span>👨‍💼 حساب موظف</span>
                     <span class="text-[10px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded">تعبئة</span>
                 </span>
-                <span class="text-slate-500 text-[11px] dir-ltr text-right">employee@example.com</span>
+                <span class="text-slate-500 text-[11px] dir-ltr text-right">sara@example.com</span>
             </button>
         </div>
     </div>
