@@ -16,7 +16,7 @@
 
 ## 🚀 التثبيت والتشغيل المحلي
 
-### 1. المتطلبات المبسطة
+### 1. المتطلبات
 - PHP >= 8.2 مع امتدادات `pdo_mysql`, `mbstring`, `openssl`
 - MariaDB / MySQL
 - Composer & Node.js / npm
