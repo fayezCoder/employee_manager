@@ -49,7 +49,7 @@ class SystemDeploymentTest extends TestCase
 
         $response = $this->get('/system/deploy-migrate?key=deploy2026&seed_structure=1');
         $response->assertStatus(200);
-        $response->assertSee('تم إنشاء الهيكل التنظيمي المعتمد بنجاح');
+        $response->assertSee('تم إنشاء الهيكل التنظيمي المعتمد');
 
         $this->assertDatabaseHas('organizational_units', [
             'code' => 'HQ-MAIN',

@@ -12,6 +12,30 @@
             </div>
         </div>
 
+        @if(Auth::user()->unitAssignments()->exists())
+            <!-- Unit Manager Notice & Quick Action Banner -->
+            <div class="bg-gradient-to-r from-indigo-700 to-indigo-900 rounded-2xl p-6 text-white shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                <div class="space-y-1">
+                    <div class="inline-flex items-center gap-1.5 px-3 py-1 bg-white/20 rounded-full text-xs font-semibold text-indigo-100">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                        <span>مهام الإشراف والتحضير للجهات</span>
+                    </div>
+                    <h2 class="text-lg font-bold">لديك صلاحيات إدارة وتحضير جهات في الهيكل التنظيمي</h2>
+                    <p class="text-indigo-200 text-xs">
+                        أنت معين كمسؤول على:
+                        @foreach(Auth::user()->unitAssignments as $assignment)
+                            <span class="inline-block bg-white/10 px-2 py-0.5 rounded text-white font-medium mr-1">{{ $assignment->role_label }} ({{ $assignment->organizationalUnit?->name ?? 'عام' }})</span>
+                        @endforeach
+                    </p>
+                </div>
+                <div class="flex items-center gap-2 shrink-0">
+                    <a href="{{ route('rosters.index') }}" class="px-5 py-2.5 bg-white text-indigo-900 hover:bg-indigo-50 rounded-xl text-sm font-bold shadow-sm transition">
+                        الانتقال لكشف التحضير اليومي ←
+                    </a>
+                </div>
+            </div>
+        @endif
+
         <!-- Attendance Action Card -->
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 text-center max-w-2xl mx-auto">
             @if($openAttendance)

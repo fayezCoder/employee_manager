@@ -97,7 +97,11 @@ try {
     Artisan::call('optimize:clear');
     $optimizeOutput = Artisan::output();
 
-    // Check if user requested seed
+    if (function_exists('opcache_reset')) {
+        @opcache_reset();
+    }
+
+    // Check if user requested seed or seed missing units
     if (isset($_GET['seed']) && $_GET['seed'] === '1') {
         if (Schema::hasTable('organizational_units') && DB::table('organizational_units')->count() === 0) {
             DB::table('organizational_units')->insert([
@@ -111,9 +115,71 @@ try {
                 ['id' => 8, 'name' => 'القيادة الفرعية الثانية', 'code' => 'SUB-02', 'type' => 'قيادة فرعية', 'parent_id' => 1, 'is_active' => 1, 'created_at' => now(), 'updated_at' => now()],
                 ['id' => 9, 'name' => 'المركز الثالث', 'code' => 'CTR-03', 'type' => 'مركز', 'parent_id' => 8, 'is_active' => 1, 'created_at' => now(), 'updated_at' => now()],
             ]);
-            $seedOutput = 'تم إدخال الهيكل التنظيمي المعتمد بنجاح (القيادة الرئيسية، الشعب، الأقسام، القيادات الفرعية، والمراكز).';
+            $seedOutput = 'تم إدخال الهيكل التنظيمي المعتمد بنجاح.';
         } else {
-            $seedOutput = 'الجهات التنظيمية موجودة مسبقاً، لم يتم التعديل عليها.';
+            $seedOutput = 'الجهات التنظيمية موجودة مسبقاً.';
+        }
+    }
+
+    // Ensure Demo Managers exist if units table is present
+    if (Schema::hasTable('organizational_units') && Schema::hasTable('user_unit_assignments')) {
+        $sub1Id = DB::table('organizational_units')->where('code', 'SUB-01')->value('id');
+        $ctr1Id = DB::table('organizational_units')->where('code', 'CTR-01')->value('id');
+
+        if ($sub1Id) {
+            $branchUserId = DB::table('users')->where('email', 'branch_admin@example.com')->value('id');
+            if (!$branchUserId) {
+                $branchUserId = DB::table('users')->insertGetId([
+                    'name' => 'قائد القيادة الفرعية الأولى',
+                    'email' => 'branch_admin@example.com',
+                    'password' => \Illuminate\Support\Facades\Hash::make('password'),
+                    'role' => 'employee',
+                    'is_active' => 1,
+                    'force_password_change' => 0,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+            if (!DB::table('user_unit_assignments')->where('user_id', $branchUserId)->where('org_unit_id', $sub1Id)->exists()) {
+                DB::table('user_unit_assignments')->insert([
+                    'user_id' => $branchUserId,
+                    'org_unit_id' => $sub1Id,
+                    'role' => 'branch_command_admin',
+                    'include_sub_branches' => 1,
+                    'can_edit_approved' => 0,
+                    'can_manage_employees' => 1,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+        }
+
+        if ($ctr1Id) {
+            $unitUserId = DB::table('users')->where('email', 'unit_admin@example.com')->value('id');
+            if (!$unitUserId) {
+                $unitUserId = DB::table('users')->insertGetId([
+                    'name' => 'مسؤول المركز الأول',
+                    'email' => 'unit_admin@example.com',
+                    'password' => \Illuminate\Support\Facades\Hash::make('password'),
+                    'role' => 'employee',
+                    'is_active' => 1,
+                    'force_password_change' => 0,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+            if (!DB::table('user_unit_assignments')->where('user_id', $unitUserId)->where('org_unit_id', $ctr1Id)->exists()) {
+                DB::table('user_unit_assignments')->insert([
+                    'user_id' => $unitUserId,
+                    'org_unit_id' => $ctr1Id,
+                    'role' => 'center_admin',
+                    'include_sub_branches' => 0,
+                    'can_edit_approved' => 0,
+                    'can_manage_employees' => 1,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
         }
     }
 } catch (\Throwable $e) {

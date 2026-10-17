@@ -146,7 +146,7 @@ class SystemDeploymentController extends Controller
                 'is_active' => true,
             ]);
 
-            OrganizationalUnit::create([
+            $ctr1 = OrganizationalUnit::create([
                 'name' => 'المركز الأول',
                 'code' => 'CTR-01',
                 'type' => 'مركز',
@@ -179,11 +179,84 @@ class SystemDeploymentController extends Controller
                 'is_active' => true,
             ]);
 
+            // 5. Create / Link Demo Managers for testing
+            $this->ensureDemoManagersExist($sub1->id, $ctr1->id);
+
             DB::commit();
-            return 'تم إنشاء الهيكل التنظيمي المعتمد بنجاح (القيادة الرئيسية، الشعب، الأقسام، القيادات الفرعية، والمراكز).';
+
+            if (function_exists('opcache_reset')) {
+                @opcache_reset();
+            }
+
+            return 'تم إنشاء الهيكل التنظيمي المعتمد وحسابات المسؤولين التجريبية بنجاح.';
         } catch (\Throwable $e) {
             DB::rollBack();
             return 'خطأ أثناء تهيئة الهيكل: ' . $e->getMessage();
+        }
+    }
+
+    /**
+     * Ensure demo managers exist for immediate testing.
+     */
+    public function ensureDemoManagersExist(?int $branchUnitId = null, ?int $centerUnitId = null): void
+    {
+        if ($branchUnitId === null) {
+            $branchUnitId = OrganizationalUnit::where('code', 'SUB-01')->value('id');
+        }
+        if ($centerUnitId === null) {
+            $centerUnitId = OrganizationalUnit::where('code', 'CTR-01')->value('id');
+        }
+
+        if ($branchUnitId) {
+            $branchUser = \App\Models\User::firstOrCreate(
+                ['email' => 'branch_admin@example.com'],
+                [
+                    'name' => 'قائد القيادة الفرعية الأولى',
+                    'password' => \Illuminate\Support\Facades\Hash::make('password'),
+                    'role' => 'employee',
+                    'is_active' => true,
+                    'force_password_change' => false,
+                ]
+            );
+
+            \App\Models\UserUnitAssignment::firstOrCreate(
+                [
+                    'user_id' => $branchUser->id,
+                    'org_unit_id' => $branchUnitId,
+                    'role' => \App\Models\UserUnitAssignment::ROLE_BRANCH_COMMAND_ADMIN,
+                ],
+                [
+                    'include_sub_branches' => true,
+                    'can_edit_approved' => false,
+                    'can_manage_employees' => true,
+                ]
+            );
+        }
+
+        if ($centerUnitId) {
+            $centerUser = \App\Models\User::firstOrCreate(
+                ['email' => 'unit_admin@example.com'],
+                [
+                    'name' => 'مسؤول المركز الأول',
+                    'password' => \Illuminate\Support\Facades\Hash::make('password'),
+                    'role' => 'employee',
+                    'is_active' => true,
+                    'force_password_change' => false,
+                ]
+            );
+
+            \App\Models\UserUnitAssignment::firstOrCreate(
+                [
+                    'user_id' => $centerUser->id,
+                    'org_unit_id' => $centerUnitId,
+                    'role' => \App\Models\UserUnitAssignment::ROLE_CENTER_ADMIN,
+                ],
+                [
+                    'include_sub_branches' => false,
+                    'can_edit_approved' => false,
+                    'can_manage_employees' => true,
+                ]
+            );
         }
     }
 
