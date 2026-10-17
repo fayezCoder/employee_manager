@@ -83,6 +83,32 @@
                         </label>
                     </div>
 
+                    {{-- ─── قسم بيانات الدخول (اختياري) ───────────────────────── --}}
+                    <div class="border border-dashed border-indigo-200 rounded-xl p-5 bg-indigo-50/40 space-y-4">
+                        <div class="flex items-center gap-2 mb-1">
+                            <svg class="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
+                            <span class="text-xs font-bold text-indigo-700">بيانات الدخول للنظام <span class="font-normal text-gray-500">(اختياري)</span></span>
+                        </div>
+                        <p class="text-[11px] text-gray-500 -mt-2">إذا أردت تمكين الموظف من تسجيل الدخول للنظام مستقبلاً، أدخل بريداً إلكترونياً وكلمة مرور. يمكن تركهما فارغَين إذا لم تكن هذه الميزة مطلوبة الآن.</p>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label for="email" class="block text-xs font-semibold text-gray-700 mb-1">البريد الإلكتروني</label>
+                                <input type="email" name="email" id="email" value="{{ old('email') }}"
+                                       class="w-full rounded-xl border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 text-xs shadow-sm"
+                                       placeholder="example@domain.com"
+                                       dir="ltr">
+                            </div>
+                            <div>
+                                <label for="password" class="block text-xs font-semibold text-gray-700 mb-1">كلمة المرور <span class="font-normal text-gray-400">(8 أحرف على الأقل)</span></label>
+                                <input type="password" name="password" id="password"
+                                       class="w-full rounded-xl border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 text-xs shadow-sm"
+                                       placeholder="••••••••"
+                                       dir="ltr">
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="flex items-center justify-end gap-3 pt-6 border-t border-gray-100">
                         <a href="{{ route('roster-employees.index') }}" class="px-4 py-2 border border-gray-300 rounded-xl text-xs font-semibold text-gray-700 hover:bg-gray-50 transition">
                             إلغاء

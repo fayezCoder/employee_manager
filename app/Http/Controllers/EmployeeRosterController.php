@@ -6,8 +6,11 @@ use App\Models\Employee;
 use App\Models\OrganizationalUnit;
 use App\Models\StructureAuditLog;
 use App\Models\User;
+use App\Models\UserUnitAssignment;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 
 class EmployeeRosterController extends Controller
@@ -98,23 +101,54 @@ class EmployeeRosterController extends Controller
             'job_title' => ['nullable', 'string', 'max:150'],
             'org_unit_id' => ['required', 'exists:organizational_units,id'],
             'is_active' => ['sometimes', 'boolean'],
+            'email' => ['nullable', 'string', 'email', 'max:255', 'unique:users,email'],
+            'password' => ['nullable', 'string', 'min:8', 'required_with:email'],
         ]);
 
         $validated['is_active'] = $request->has('is_active');
         $validated['needs_review'] = false;
 
-        $employee = Employee::create($validated);
+        $employee = DB::transaction(function () use ($validated, $user, $request) {
+            $createdUserId = null;
 
-        StructureAuditLog::create([
-            'user_id' => $user->id,
-            'target_type' => 'employee',
-            'target_id' => $employee->id,
-            'action' => 'employee_created',
-            'old_values' => null,
-            'new_values' => $employee->only(['name', 'national_id', 'org_unit_id', 'job_title']),
-            'ip_address' => $request->ip(),
-            'created_at' => now(),
-        ]);
+            if (!empty($validated['email'])) {
+                $newUser = User::create([
+                    'name' => $validated['name'],
+                    'email' => $validated['email'],
+                    'password' => Hash::make($validated['password']),
+                    'role' => 'employee',
+                    'is_active' => $validated['is_active'],
+                    'force_password_change' => false,
+                ]);
+
+                $createdUserId = $newUser->id;
+            }
+
+            $employeeData = [
+                'name' => $validated['name'],
+                'national_id' => $validated['national_id'],
+                'job_title' => $validated['job_title'] ?? null,
+                'org_unit_id' => $validated['org_unit_id'],
+                'user_id' => $createdUserId,
+                'is_active' => $validated['is_active'],
+                'needs_review' => false,
+            ];
+
+            $employee = Employee::create($employeeData);
+
+            StructureAuditLog::create([
+                'user_id' => $user->id,
+                'target_type' => 'employee',
+                'target_id' => $employee->id,
+                'action' => 'employee_created',
+                'old_values' => null,
+                'new_values' => $employee->only(['name', 'national_id', 'org_unit_id', 'job_title', 'user_id']),
+                'ip_address' => $request->ip(),
+                'created_at' => now(),
+            ]);
+
+            return $employee;
+        });
 
         return redirect()->route('roster-employees.index')->with('status', 'تمت إضافة الموظف بنجاح.');
     }

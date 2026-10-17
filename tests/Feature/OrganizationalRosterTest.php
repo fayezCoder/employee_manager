@@ -669,4 +669,70 @@ class OrganizationalRosterTest extends TestCase
         $this->assertFalse($divAdmin->hasUnitPermission($this->center1, 'can_edit_approved'));
         $this->assertFalse($divAdmin->canAccessUnit($this->branchCmd1));
     }
+
+    public function test_can_create_employee_with_login_credentials()
+    {
+        $response = $this->actingAs($this->superAdmin)->post(route('roster-employees.store'), [
+            'name' => 'موظف تجريبي جديد',
+            'national_id' => '1099887766',
+            'job_title' => 'باحث إداري',
+            'org_unit_id' => $this->center1->id,
+            'is_active' => '1',
+            'email' => 'newemployee@test.com',
+            'password' => 'secret12345',
+        ]);
+
+        $response->assertRedirect(route('roster-employees.index'));
+        $this->assertDatabaseHas('users', [
+            'name' => 'موظف تجريبي جديد',
+            'email' => 'newemployee@test.com',
+        ]);
+
+        $user = User::where('email', 'newemployee@test.com')->first();
+        $this->assertNotNull($user);
+
+        $this->assertDatabaseHas('employees', [
+            'name' => 'موظف تجريبي جديد',
+            'national_id' => '1099887766',
+            'org_unit_id' => $this->center1->id,
+            'user_id' => $user->id,
+        ]);
+    }
+
+    public function test_can_create_organizational_unit_with_valid_hierarchy()
+    {
+        $response = $this->actingAs($this->superAdmin)->post(route('org-units.store'), [
+            'name' => 'مركز تدريب إضافي',
+            'code' => 'CTR-TEST-99',
+            'type' => OrganizationalUnit::TYPE_CENTER,
+            'parent_id' => $this->branchCmd1->id,
+            'is_active' => '1',
+        ]);
+
+        $response->assertRedirect(route('org-units.index'));
+        $this->assertDatabaseHas('organizational_units', [
+            'name' => 'مركز تدريب إضافي',
+            'code' => 'CTR-TEST-99',
+            'type' => OrganizationalUnit::TYPE_CENTER,
+            'parent_id' => $this->branchCmd1->id,
+        ]);
+    }
+
+    public function test_cannot_create_organizational_unit_with_invalid_hierarchy()
+    {
+        // Center cannot belong directly to main command (must belong to branch command)
+        $response = $this->actingAs($this->superAdmin)->post(route('org-units.store'), [
+            'name' => 'مركز خاطئ',
+            'code' => 'CTR-ERR-01',
+            'type' => OrganizationalUnit::TYPE_CENTER,
+            'parent_id' => $this->mainCmd->id,
+            'is_active' => '1',
+        ]);
+
+        $response->assertSessionHasErrors('type');
+        $this->assertDatabaseMissing('organizational_units', [
+            'code' => 'CTR-ERR-01',
+        ]);
+    }
 }
+
