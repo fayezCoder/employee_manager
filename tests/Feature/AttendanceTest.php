@@ -240,4 +240,12 @@ class AttendanceTest extends TestCase
         $this->assertStringContainsString($this->employee1->name, $content);
         $this->assertStringNotContainsString($this->employee2->name, $content);
     }
+
+    public function test_active_employee_can_view_dashboard_with_open_and_today_attendance(): void
+    {
+        $response = $this->actingAs($this->employee1)->get(route('dashboard'));
+        $response->assertStatus(200);
+        $response->assertViewHas('openAttendance');
+        $response->assertViewHas('todayAttendance');
+    }
 }

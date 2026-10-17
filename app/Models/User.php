@@ -71,6 +71,11 @@ class User extends Authenticatable
         return $this->attendanceRecords()->where('date', $today)->first();
     }
 
+    public function getOpenAttendance(): ?AttendanceRecord
+    {
+        return $this->attendanceRecords()->whereNull('check_out')->first();
+    }
+
     public function unitAssignments(): HasMany
     {
         return $this->hasMany(UserUnitAssignment::class);
