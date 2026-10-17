@@ -68,7 +68,7 @@
                                 class="w-full rounded-xl border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 text-sm shadow-sm">
                             <option value="">-- بدون جهة أعلى (خاص بالقيادة الرئيسية فقط) --</option>
                             @foreach($parents as $parent)
-                                <option value="{{ $parent->id }}" {{ old('parent_id') == $parent->id ? 'selected' : '' }}>
+                                <option value="{{ $parent->id }}" data-type="{{ $parent->type }}" {{ old('parent_id') == $parent->id ? 'selected' : '' }}>
                                     {{ $parent->name }} ({{ $parent->type_label }})
                                 </option>
                             @endforeach
@@ -109,17 +109,11 @@
             const parentSelect = document.getElementById('parent_id');
             if (!typeSelect || !parentSelect) return;
 
-            // تخزين الخيارات الأصلية مع نوع كل جهة
+            // تخزين الخيارات الأصلية مع نوع كل جهة بدقة من خلال data-type والنص
             const options = Array.from(parentSelect.options).map(opt => ({
                 value: opt.value,
                 text: opt.text,
-                selected: opt.selected,
-                // استخراج النوع من النص مثل: القيادة الفرعية الأولى (قيادة فرعية)
-                isMain: opt.text.includes('(قيادة رئيسية)'),
-                isBranch: opt.text.includes('(قيادة فرعية)'),
-                isDivision: opt.text.includes('(شعبة)'),
-                isCenter: opt.text.includes('(مركز)'),
-                isDept: opt.text.includes('(قسم)'),
+                type: opt.getAttribute('data-type') || '',
                 isRootOption: opt.value === ''
             }));
 
@@ -130,7 +124,6 @@
                 parentSelect.innerHTML = '';
 
                 if (selectedType === 'main_command') {
-                    // القيادة الرئيسية: خيار واحد فقط بدون جهة أعلى
                     const opt = document.createElement('option');
                     opt.value = '';
                     opt.text = '-- بدون جهة أعلى (خاص بالقيادة الرئيسية فقط) --';
@@ -150,26 +143,42 @@
                     if (optData.isRootOption) return;
 
                     let isAllowed = false;
-                    if (selectedType === 'branch_command' && optData.isMain) {
-                        isAllowed = true; // القيادة الفرعية تتبع القيادة الرئيسية حصراً
-                    } else if (selectedType === 'division' && optData.isMain) {
-                        isAllowed = true; // الشعبة تتبع القيادة الرئيسية حصراً
-                    } else if (selectedType === 'center' && optData.isBranch) {
-                        isAllowed = true; // المركز يتبع قيادة فرعية حصراً
-                    } else if (selectedType === 'department' && optData.isDivision) {
-                        isAllowed = true; // القسم يتبع شعبة حصراً
+                    const uType = optData.type;
+                    const text = optData.text;
+
+                    // القيادة الرئيسية
+                    const isMain = uType === 'main_command' || text.includes('الرئيسية') || text.includes('الرئيسيه');
+                    // القيادة الفرعية
+                    const isBranch = uType === 'branch_command' || text.includes('فرعية') || text.includes('فرعيه');
+                    // الشعبة
+                    const isDivision = uType === 'division' || text.includes('شعبة') || text.includes('شعبه');
+
+                    if (selectedType === 'branch_command' && isMain) {
+                        isAllowed = true; // القيادة الفرعية تتبع القيادة الرئيسية
+                    } else if (selectedType === 'division' && isMain) {
+                        isAllowed = true; // الشعبة تتبع القيادة الرئيسية
+                    } else if (selectedType === 'center' && isBranch) {
+                        isAllowed = true; // المركز يتبع قيادة فرعية
+                    } else if (selectedType === 'department' && isDivision) {
+                        isAllowed = true; // القسم يتبع شعبة
                     }
 
                     if (isAllowed) {
                         const opt = document.createElement('option');
                         opt.value = optData.value;
                         opt.text = optData.text;
+                        opt.setAttribute('data-type', optData.type);
                         if (optData.value === currentVal) {
                             opt.selected = true;
                         }
                         parentSelect.appendChild(opt);
                     }
                 });
+
+                // إذا كان الخيار المسموح به واحداً فقط (مثل القيادة الرئيسية)، يتم اختياره تلقائياً تيسيراً للمستخدم
+                if (parentSelect.options.length === 2 && !parentSelect.value) {
+                    parentSelect.selectedIndex = 1;
+                }
             }
 
             typeSelect.addEventListener('change', updateParentOptions);

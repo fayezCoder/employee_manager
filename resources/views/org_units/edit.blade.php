@@ -66,7 +66,7 @@
                                 class="w-full rounded-xl border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 text-sm shadow-sm">
                             <option value="">-- بدون جهة أعلى (خاص بالقيادة الرئيسية فقط) --</option>
                             @foreach($parents as $parent)
-                                <option value="{{ $parent->id }}" {{ old('parent_id', $orgUnit->parent_id) == $parent->id ? 'selected' : '' }}>
+                                <option value="{{ $parent->id }}" data-type="{{ $parent->type }}" {{ old('parent_id', $orgUnit->parent_id) == $parent->id ? 'selected' : '' }}>
                                     {{ $parent->name }} ({{ $parent->type_label }})
                                 </option>
                             @endforeach
@@ -111,12 +111,7 @@
             const options = Array.from(parentSelect.options).map(opt => ({
                 value: opt.value,
                 text: opt.text,
-                selected: opt.selected,
-                isMain: opt.text.includes('(قيادة رئيسية)'),
-                isBranch: opt.text.includes('(قيادة فرعية)'),
-                isDivision: opt.text.includes('(شعبة)'),
-                isCenter: opt.text.includes('(مركز)'),
-                isDept: opt.text.includes('(قسم)'),
+                type: opt.getAttribute('data-type') || '',
                 isRootOption: opt.value === ''
             }));
 
@@ -146,13 +141,20 @@
                     if (optData.isRootOption) return;
 
                     let isAllowed = false;
-                    if (selectedType === 'branch_command' && optData.isMain) {
+                    const uType = optData.type;
+                    const text = optData.text;
+
+                    const isMain = uType === 'main_command' || text.includes('الرئيسية') || text.includes('الرئيسيه');
+                    const isBranch = uType === 'branch_command' || text.includes('فرعية') || text.includes('فرعيه');
+                    const isDivision = uType === 'division' || text.includes('شعبة') || text.includes('شعبه');
+
+                    if (selectedType === 'branch_command' && isMain) {
                         isAllowed = true;
-                    } else if (selectedType === 'division' && optData.isMain) {
+                    } else if (selectedType === 'division' && isMain) {
                         isAllowed = true;
-                    } else if (selectedType === 'center' && optData.isBranch) {
+                    } else if (selectedType === 'center' && isBranch) {
                         isAllowed = true;
-                    } else if (selectedType === 'department' && optData.isDivision) {
+                    } else if (selectedType === 'department' && isDivision) {
                         isAllowed = true;
                     }
 
@@ -160,12 +162,17 @@
                         const opt = document.createElement('option');
                         opt.value = optData.value;
                         opt.text = optData.text;
+                        opt.setAttribute('data-type', optData.type);
                         if (optData.value === String(currentVal)) {
                             opt.selected = true;
                         }
                         parentSelect.appendChild(opt);
                     }
                 });
+
+                if (parentSelect.options.length === 2 && !parentSelect.value) {
+                    parentSelect.selectedIndex = 1;
+                }
             }
 
             typeSelect.addEventListener('change', updateParentOptions);
