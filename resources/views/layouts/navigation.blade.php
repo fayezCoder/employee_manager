@@ -21,20 +21,22 @@
                         لوحة التحكم
                     </a>
 
-                    <a href="{{ route('rosters.index') }}"
-                       class="px-3 py-2 rounded-md text-sm font-medium transition {{ request()->routeIs('rosters.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50' }}">
-                        التحضير اليومي
-                    </a>
+                    @if(Auth::user()->isSuperAdmin() || Auth::user()->unitAssignments()->exists())
+                        <a href="{{ route('rosters.index') }}"
+                           class="px-3 py-2 rounded-md text-sm font-medium transition {{ request()->routeIs('rosters.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50' }}">
+                            التحضير اليومي
+                        </a>
 
-                    <a href="{{ route('roster-employees.index') }}"
-                       class="px-3 py-2 rounded-md text-sm font-medium transition {{ request()->routeIs('roster-employees.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50' }}">
-                        سجل الموظفين
-                    </a>
+                        <a href="{{ route('roster-employees.index') }}"
+                           class="px-3 py-2 rounded-md text-sm font-medium transition {{ request()->routeIs('roster-employees.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50' }}">
+                            سجل الموظفين
+                        </a>
 
-                    <a href="{{ route('roster-reports.index') }}"
-                       class="px-3 py-2 rounded-md text-sm font-medium transition {{ request()->routeIs('roster-reports.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50' }}">
-                        تقارير التحضير
-                    </a>
+                        <a href="{{ route('roster-reports.index') }}"
+                           class="px-3 py-2 rounded-md text-sm font-medium transition {{ request()->routeIs('roster-reports.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50' }}">
+                            تقارير التحضير
+                        </a>
+                    @endif
 
                     @can('super-admin')
                         <a href="{{ route('org-units.index') }}"
@@ -114,9 +116,12 @@
     <!-- Mobile menu -->
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden border-t border-gray-200 bg-gray-50 px-4 pt-2 pb-3 space-y-1">
         <a href="{{ route('dashboard') }}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100">لوحة التحكم</a>
-        <a href="{{ route('rosters.index') }}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100">التحضير اليومي</a>
-        <a href="{{ route('roster-employees.index') }}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100">سجل الموظفين</a>
-        <a href="{{ route('roster-reports.index') }}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100">تقارير التحضير</a>
+
+        @if(Auth::user()->isSuperAdmin() || Auth::user()->unitAssignments()->exists())
+            <a href="{{ route('rosters.index') }}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100">التحضير اليومي</a>
+            <a href="{{ route('roster-employees.index') }}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100">سجل الموظفين</a>
+            <a href="{{ route('roster-reports.index') }}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100">تقارير التحضير</a>
+        @endif
 
         @can('super-admin')
             <a href="{{ route('org-units.index') }}" class="block px-3 py-2 rounded-md text-base font-medium text-indigo-700 hover:bg-indigo-50 font-semibold">الهيكل التنظيمي</a>

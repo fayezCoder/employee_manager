@@ -93,104 +93,16 @@ class SystemDeploymentController extends Controller
      */
     protected function seedDefaultStructure(): string
     {
-        if (! Schema::hasTable('organizational_units')) {
-            return 'جدول الجهات التنظيمية غير موجود بعد.';
-        }
-
-        if (OrganizationalUnit::count() > 0) {
-            return 'الجهات التنظيمية موجودة مسبقاً (العدد الحالي: ' . OrganizationalUnit::count() . '). لم يتم الكتابة فوقها.';
-        }
-
-        DB::beginTransaction();
         try {
-            // 1. Main HQ
-            $hq = OrganizationalUnit::create([
-                'name' => 'القيادة الرئيسية',
-                'code' => 'HQ-MAIN',
-                'type' => 'قيادة رئيسية',
-                'parent_id' => null,
-                'is_active' => true,
-            ]);
-
-            // 2. Divisions & Sections under HQ
-            $adminDivision = OrganizationalUnit::create([
-                'name' => 'شعبة الإدارة',
-                'code' => 'HQ-ADM',
-                'type' => 'شعبة',
-                'parent_id' => $hq->id,
-                'is_active' => true,
-            ]);
-
-            OrganizationalUnit::create([
-                'name' => 'قسم المتابعة',
-                'code' => 'HQ-ADM-FOL',
-                'type' => 'قسم',
-                'parent_id' => $adminDivision->id,
-                'is_active' => true,
-            ]);
-
-            OrganizationalUnit::create([
-                'name' => 'شعبة الموارد البشرية',
-                'code' => 'HQ-HR',
-                'type' => 'شعبة',
-                'parent_id' => $hq->id,
-                'is_active' => true,
-            ]);
-
-            // 3. Sub-branch 1 & Centers
-            $sub1 = OrganizationalUnit::create([
-                'name' => 'القيادة الفرعية الأولى',
-                'code' => 'SUB-01',
-                'type' => 'قيادة فرعية',
-                'parent_id' => $hq->id,
-                'is_active' => true,
-            ]);
-
-            $ctr1 = OrganizationalUnit::create([
-                'name' => 'المركز الأول',
-                'code' => 'CTR-01',
-                'type' => 'مركز',
-                'parent_id' => $sub1->id,
-                'is_active' => true,
-            ]);
-
-            OrganizationalUnit::create([
-                'name' => 'المركز الثاني',
-                'code' => 'CTR-02',
-                'type' => 'مركز',
-                'parent_id' => $sub1->id,
-                'is_active' => true,
-            ]);
-
-            // 4. Sub-branch 2 & Center
-            $sub2 = OrganizationalUnit::create([
-                'name' => 'القيادة الفرعية الثانية',
-                'code' => 'SUB-02',
-                'type' => 'قيادة فرعية',
-                'parent_id' => $hq->id,
-                'is_active' => true,
-            ]);
-
-            OrganizationalUnit::create([
-                'name' => 'المركز الثالث',
-                'code' => 'CTR-03',
-                'type' => 'مركز',
-                'parent_id' => $sub2->id,
-                'is_active' => true,
-            ]);
-
-            // 5. Create / Link Demo Managers for testing
-            $this->ensureDemoManagersExist($sub1->id, $ctr1->id);
-
-            DB::commit();
+            $seeder = new \Database\Seeders\RealOrganizationDataSeeder();
+            $seeder->run();
 
             if (function_exists('opcache_reset')) {
                 @opcache_reset();
             }
 
-            return 'تم إنشاء الهيكل التنظيمي المعتمد وحسابات المسؤولين التجريبية بنجاح.';
+            return 'تم إنشاء الهيكل التنظيمي المعتمد وتغذية بيانات الموظفين والمسؤولين بنجاح.';
         } catch (\Throwable $e) {
-            DB::rollBack();
             return 'خطأ أثناء تهيئة الهيكل: ' . $e->getMessage();
         }
     }

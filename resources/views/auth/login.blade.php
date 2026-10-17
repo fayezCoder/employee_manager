@@ -13,10 +13,10 @@
         <p class="text-xs text-slate-600 mb-3 leading-relaxed">
             يمكنك الضغط على أي زر أدناه للتعبئة الفورية وتجربة النظام بالدور المناسب:
         </p>
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
             <button type="button" onclick="fillCredentials('admin@example.com', 'password')" class="w-full text-right p-2.5 bg-white hover:bg-indigo-50 border border-indigo-200 rounded-lg text-xs font-medium text-slate-800 transition flex flex-col gap-0.5 shadow-sm group">
                 <span class="text-indigo-600 font-bold group-hover:text-indigo-700 flex items-center justify-between">
-                    <span>👑 المسؤول الأول (Super Admin)</span>
+                    <span>👑 اللواء عبد الله (المسؤول الأول)</span>
                     <span class="text-[10px] bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded">تعبئة</span>
                 </span>
                 <span class="text-slate-500 text-[11px] dir-ltr text-right">admin@example.com</span>
@@ -24,7 +24,7 @@
 
             <button type="button" onclick="fillCredentials('branch_admin@example.com', 'password')" class="w-full text-right p-2.5 bg-white hover:bg-purple-50 border border-purple-200 rounded-lg text-xs font-medium text-slate-800 transition flex flex-col gap-0.5 shadow-sm group">
                 <span class="text-purple-600 font-bold group-hover:text-purple-700 flex items-center justify-between">
-                    <span>🏢 مسؤول قيادة فرعية (Branch Admin)</span>
+                    <span>🏢 العميد إبراهيم (القيادة الفرعية 1)</span>
                     <span class="text-[10px] bg-purple-100 text-purple-700 px-1.5 py-0.5 rounded">تعبئة</span>
                 </span>
                 <span class="text-slate-500 text-[11px] dir-ltr text-right">branch_admin@example.com</span>
@@ -32,15 +32,31 @@
 
             <button type="button" onclick="fillCredentials('unit_admin@example.com', 'password')" class="w-full text-right p-2.5 bg-white hover:bg-amber-50 border border-amber-200 rounded-lg text-xs font-medium text-slate-800 transition flex flex-col gap-0.5 shadow-sm group">
                 <span class="text-amber-600 font-bold group-hover:text-amber-700 flex items-center justify-between">
-                    <span>📋 مسؤول مركز / قسم (Unit Admin)</span>
+                    <span>📋 الرائد عبد الرحمن (المركز الأول)</span>
                     <span class="text-[10px] bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded">تعبئة</span>
                 </span>
                 <span class="text-slate-500 text-[11px] dir-ltr text-right">unit_admin@example.com</span>
             </button>
 
+            <button type="button" onclick="fillCredentials('division_admin@example.com', 'password')" class="w-full text-right p-2.5 bg-white hover:bg-sky-50 border border-sky-200 rounded-lg text-xs font-medium text-slate-800 transition flex flex-col gap-0.5 shadow-sm group">
+                <span class="text-sky-600 font-bold group-hover:text-sky-700 flex items-center justify-between">
+                    <span>🏢 العقيد محمد (شعبة الإدارة)</span>
+                    <span class="text-[10px] bg-sky-100 text-sky-700 px-1.5 py-0.5 rounded">تعبئة</span>
+                </span>
+                <span class="text-slate-500 text-[11px] dir-ltr text-right">division_admin@example.com</span>
+            </button>
+
+            <button type="button" onclick="fillCredentials('dept_admin@example.com', 'password')" class="w-full text-right p-2.5 bg-white hover:bg-teal-50 border border-teal-200 rounded-lg text-xs font-medium text-slate-800 transition flex flex-col gap-0.5 shadow-sm group">
+                <span class="text-teal-600 font-bold group-hover:text-teal-700 flex items-center justify-between">
+                    <span>📋 النقيب خالد (قسم المتابعة)</span>
+                    <span class="text-[10px] bg-teal-100 text-teal-700 px-1.5 py-0.5 rounded">تعبئة</span>
+                </span>
+                <span class="text-slate-500 text-[11px] dir-ltr text-right">dept_admin@example.com</span>
+            </button>
+
             <button type="button" onclick="fillCredentials('sara@example.com', 'password')" class="w-full text-right p-2.5 bg-white hover:bg-emerald-50 border border-emerald-200 rounded-lg text-xs font-medium text-slate-800 transition flex flex-col gap-0.5 shadow-sm group">
                 <span class="text-emerald-600 font-bold group-hover:text-emerald-700 flex items-center justify-between">
-                    <span>👨‍💼 موظف عادي (Employee)</span>
+                    <span>👨‍💼 سارة محمد (موظفة عادية)</span>
                     <span class="text-[10px] bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded">تعبئة</span>
                 </span>
                 <span class="text-slate-500 text-[11px] dir-ltr text-right">sara@example.com</span>
