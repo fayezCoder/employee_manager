@@ -198,6 +198,20 @@ class DailyRosterController extends Controller
                 return ['error' => 'هذا السجل مقفل مسبقاً ضد الاعتماد.'];
             }
 
+            // If items are submitted in this request, update them before validating
+            if ($request->has('items') && is_array($request->items)) {
+                foreach ($request->items as $itemId => $itemData) {
+                    if (is_array($itemData)) {
+                        DailyRosterItem::where('id', $itemId)
+                            ->where('daily_roster_id', $lockedRoster->id)
+                            ->update([
+                                'status' => !empty($itemData['status']) ? $itemData['status'] : null,
+                                'notes' => !empty($itemData['notes']) ? $itemData['notes'] : null,
+                            ]);
+                    }
+                }
+            }
+
             // Rule 6: Validate that NO employee has an unselected status
             $unselectedCount = $lockedRoster->items()->whereNull('status')->count();
             if ($unselectedCount > 0) {
@@ -236,6 +250,7 @@ class DailyRosterController extends Controller
             $lockedRoster->freezeUnitSnapshot();
             $lockedRoster->save();
 
+            $lockedRoster->load('items');
             foreach ($lockedRoster->items as $item) {
                 $item->freezeEmployeeSnapshot();
                 $item->save();

@@ -150,9 +150,17 @@
                 <input type="hidden" name="version" value="{{ $roster->version }}">
 
                 <div class="bg-white shadow-sm border border-gray-200 rounded-2xl overflow-hidden">
-                    <div class="p-4 sm:p-5 border-b border-gray-100 flex items-center justify-between bg-slate-50/50">
-                        <div class="font-bold text-gray-800 text-xs sm:text-sm">
-                            قائمة موظفي الجهة ({{ $roster->items->count() }} موظف)
+                    <div class="p-4 sm:p-5 border-b border-gray-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/50">
+                        <div class="flex items-center gap-3">
+                            <span class="font-bold text-gray-800 text-xs sm:text-sm">
+                                قائمة موظفي الجهة ({{ $roster->items->count() }} موظف)
+                            </span>
+                            @if($canUpdate)
+                                <button type="button" onclick="setAllPresent()" class="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-300 rounded-lg text-xs font-semibold transition shadow-sm">
+                                    <svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                                    تحديد الكل: حاضر
+                                </button>
+                            @endif
                         </div>
                         <div class="text-[11px] text-gray-500">
                             الحالات غير المحددة مسبقاً تظهر فارغة لتعبئتها اليومية بدقة
@@ -174,7 +182,7 @@
                                 @forelse($roster->items as $index => $item)
                                     <tr class="hover:bg-slate-50/60 transition">
                                         <td class="px-4 py-3.5 text-center text-gray-400 font-mono">
-                                            {{ $index + 1 }}
+                                             {{ $index + 1 }}
                                         </td>
                                         <td class="px-5 py-3.5 font-bold text-gray-900">
                                             {{ $item->employee->name ?? $item->employee_name_snapshot }}
@@ -188,6 +196,7 @@
                                         <td class="px-5 py-3.5">
                                             <select name="items[{{ $item->id }}][status]"
                                                     {{ !$canUpdate ? 'disabled' : '' }}
+                                                    onchange="this.classList.remove('border-rose-500', 'bg-rose-50', 'text-gray-400'); if(this.value){this.classList.add('font-semibold','text-gray-900');}else{this.classList.add('text-gray-400');}"
                                                     class="w-full rounded-xl border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 text-xs shadow-sm {{ $item->status ? 'font-semibold text-gray-900' : 'text-gray-400' }}">
                                                 <option value="" class="text-gray-400">-- غير محدد --</option>
                                                 @foreach($statuses as $status)
@@ -219,7 +228,7 @@
                     @if($canUpdate || $canSubmit)
                         <div class="p-4 sm:p-5 bg-slate-50 border-t border-gray-200 flex flex-wrap items-center justify-between gap-4">
                             <div class="text-xs text-gray-500">
-                                تأكد من حفظ التعديلات بانتظام قبل اعتماد الكشف.
+                                يمكنك حفظ المسودة أثناء العمل، أو الضغط مباشرة على الاعتماد لحفظ وتأكيد الكشف دفعة واحدة.
                             </div>
                             <div class="flex items-center gap-3">
                                 @if($canUpdate)
@@ -240,20 +249,44 @@
                 </div>
             </form>
 
-            <!-- Separate Form for Submitting / Locking -->
-            @if($canSubmit)
-                <form id="submitRosterForm" method="POST" action="{{ route('rosters.submit', $roster) }}" class="hidden">
-                    @csrf
-                    <input type="hidden" name="version" value="{{ $roster->version }}">
-                </form>
-                <script>
-                    function submitRosterDirectly() {
-                        if (confirm('هل أنت متأكد من رغبتك في اعتماد هذا الكشف وقفل التحرير؟ لا يمكن التراجع إلا بصلاحية تصحيح خاصة ومبرر إلزامي.')) {
-                            document.getElementById('submitRosterForm').submit();
+            <script>
+                function setAllPresent() {
+                    const form = document.getElementById('rosterForm');
+                    if (!form) return;
+                    const selects = form.querySelectorAll('select[name^="items["]');
+                    selects.forEach(s => {
+                        s.value = 'حاضر';
+                        s.classList.remove('border-rose-500', 'bg-rose-50', 'text-gray-400');
+                        s.classList.add('font-semibold', 'text-gray-900');
+                    });
+                }
+
+                function submitRosterDirectly() {
+                    const form = document.getElementById('rosterForm');
+                    if (!form) return;
+
+                    const selects = form.querySelectorAll('select[name^="items["]');
+                    let unselected = 0;
+                    selects.forEach(s => {
+                        if (!s.value || s.value.trim() === '') {
+                            unselected++;
+                            s.classList.add('border-rose-500', 'bg-rose-50');
+                        } else {
+                            s.classList.remove('border-rose-500', 'bg-rose-50');
                         }
+                    });
+
+                    if (unselected > 0) {
+                        alert('لا يمكن اعتماد الكشف؛ يوجد (' + unselected + ') موظف لم يتم تحديد حالتهم بعد.\n\nيرجى تحديد حالة لجميع الموظفين (أو الضغط على زر "تحديد الكل: حاضر") ثم المحاولة مجدداً.');
+                        return;
                     }
-                </script>
-            @endif
+
+                    if (confirm('هل أنت متأكد من رغبتك في اعتماد هذا الكشف وقفل التحرير؟ لا يمكن التراجع إلا بصلاحية تصحيح خاصة ومبرر إلزامي.')) {
+                        form.action = "{{ route('rosters.submit', $roster) }}";
+                        form.submit();
+                    }
+                }
+            </script>
 
             <!-- Audit Trail / History Section -->
             @if($roster->auditLogs->isNotEmpty())

@@ -45,7 +45,7 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/rosters/incoming', [\App\Http\Controllers\DailyRosterController::class, 'incoming'])->name('rosters.incoming');
     Route::get('/rosters/unit/{orgUnit}', [\App\Http\Controllers\DailyRosterController::class, 'show'])->name('rosters.show');
     Route::put('/rosters/{roster}', [\App\Http\Controllers\DailyRosterController::class, 'update'])->name('rosters.update');
-    Route::post('/rosters/{roster}/submit', [\App\Http\Controllers\DailyRosterController::class, 'submit'])->name('rosters.submit');
+    Route::match(['post', 'put'], '/rosters/{roster}/submit', [\App\Http\Controllers\DailyRosterController::class, 'submit'])->name('rosters.submit');
     Route::post('/rosters/{roster}/branch-approve', [\App\Http\Controllers\DailyRosterController::class, 'branchApprove'])->name('rosters.branch-approve');
     Route::post('/rosters/{roster}/correct', [\App\Http\Controllers\DailyRosterController::class, 'correct'])->name('rosters.correct');
 

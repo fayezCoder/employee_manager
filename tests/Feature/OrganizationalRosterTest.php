@@ -340,6 +340,50 @@ class OrganizationalRosterTest extends TestCase
         $response->assertForbidden();
     }
 
+    public function test_roster_can_be_submitted_with_items_in_single_step()
+    {
+        $emp = Employee::create([
+            'name' => 'فهد المطيري',
+            'national_id' => '1099887766',
+            'org_unit_id' => $this->center2->id,
+            'is_active' => true,
+        ]);
+
+        $centerAdmin = User::create([
+            'name' => 'مدير المركز 2',
+            'email' => 'admin_ctr2@test.com',
+            'password' => bcrypt('password123'),
+            'role' => 'employee',
+            'is_active' => true,
+        ]);
+        UserUnitAssignment::create([
+            'user_id' => $centerAdmin->id,
+            'org_unit_id' => $this->center2->id,
+            'role' => UserUnitAssignment::ROLE_CENTER_ADMIN,
+        ]);
+
+        $this->actingAs($centerAdmin);
+
+        // Open roster for center 2
+        $this->get(route('rosters.show', ['orgUnit' => $this->center2->id]));
+        $roster = DailyRoster::where('org_unit_id', $this->center2->id)->first();
+        $this->assertNotNull($roster);
+        $item = $roster->items->first();
+        $this->assertNull($item->status);
+
+        // Submit directly with items payload (without separate draft save)
+        $response = $this->post(route('rosters.submit', $roster), [
+            'version' => $roster->version,
+            'items' => [
+                $item->id => ['status' => 'حاضر', 'notes' => 'حاضر بالمركز'],
+            ],
+        ]);
+
+        $response->assertSessionHas('status');
+        $this->assertEquals(DailyRoster::STATUS_CENTER_LOCKED, $roster->fresh()->status);
+        $this->assertEquals('حاضر', $item->fresh()->status);
+    }
+
     public function test_approved_roster_correction_with_mandatory_reason_and_audit()
     {
         $roster = DailyRoster::create([
