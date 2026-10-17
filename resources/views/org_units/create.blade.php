@@ -101,4 +101,81 @@
             </div>
         </div>
     </div>
+
+    {{-- تصفية تفاعلية ذكية للجهة الأعلى حسب نوع الجهة المختار لمنع الخطأ الإداري --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const typeSelect = document.getElementById('type');
+            const parentSelect = document.getElementById('parent_id');
+            if (!typeSelect || !parentSelect) return;
+
+            // تخزين الخيارات الأصلية مع نوع كل جهة
+            const options = Array.from(parentSelect.options).map(opt => ({
+                value: opt.value,
+                text: opt.text,
+                selected: opt.selected,
+                // استخراج النوع من النص مثل: القيادة الفرعية الأولى (قيادة فرعية)
+                isMain: opt.text.includes('(قيادة رئيسية)'),
+                isBranch: opt.text.includes('(قيادة فرعية)'),
+                isDivision: opt.text.includes('(شعبة)'),
+                isCenter: opt.text.includes('(مركز)'),
+                isDept: opt.text.includes('(قسم)'),
+                isRootOption: opt.value === ''
+            }));
+
+            function updateParentOptions() {
+                const selectedType = typeSelect.value;
+                const currentVal = parentSelect.value;
+
+                parentSelect.innerHTML = '';
+
+                if (selectedType === 'main_command') {
+                    // القيادة الرئيسية: خيار واحد فقط بدون جهة أعلى
+                    const opt = document.createElement('option');
+                    opt.value = '';
+                    opt.text = '-- بدون جهة أعلى (خاص بالقيادة الرئيسية فقط) --';
+                    parentSelect.appendChild(opt);
+                    parentSelect.disabled = true;
+                    return;
+                }
+
+                parentSelect.disabled = false;
+
+                const defaultOpt = document.createElement('option');
+                defaultOpt.value = '';
+                defaultOpt.text = '-- اختر الجهة الأعلى المناسبة --';
+                parentSelect.appendChild(defaultOpt);
+
+                options.forEach(optData => {
+                    if (optData.isRootOption) return;
+
+                    let isAllowed = false;
+                    if (selectedType === 'branch_command' && optData.isMain) {
+                        isAllowed = true; // القيادة الفرعية تتبع القيادة الرئيسية حصراً
+                    } else if (selectedType === 'division' && optData.isMain) {
+                        isAllowed = true; // الشعبة تتبع القيادة الرئيسية حصراً
+                    } else if (selectedType === 'center' && optData.isBranch) {
+                        isAllowed = true; // المركز يتبع قيادة فرعية حصراً
+                    } else if (selectedType === 'department' && optData.isDivision) {
+                        isAllowed = true; // القسم يتبع شعبة حصراً
+                    }
+
+                    if (isAllowed) {
+                        const opt = document.createElement('option');
+                        opt.value = optData.value;
+                        opt.text = optData.text;
+                        if (optData.value === currentVal) {
+                            opt.selected = true;
+                        }
+                        parentSelect.appendChild(opt);
+                    }
+                });
+            }
+
+            typeSelect.addEventListener('change', updateParentOptions);
+            if (typeSelect.value) {
+                updateParentOptions();
+            }
+        });
+    </script>
 </x-app-layout>
