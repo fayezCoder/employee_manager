@@ -71,8 +71,102 @@ class User extends Authenticatable
         return $this->attendanceRecords()->where('date', $today)->first();
     }
 
-    public function getOpenAttendance(): ?AttendanceRecord
+    public function unitAssignments(): HasMany
     {
-        return $this->attendanceRecords()->whereNull('check_out')->first();
+        return $this->hasMany(UserUnitAssignment::class);
+    }
+
+    public function employeeProfile(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(Employee::class);
+    }
+
+    public function isSuperAdmin(): bool
+    {
+        if ($this->isAdmin()) {
+            return true;
+        }
+
+        return $this->unitAssignments()
+            ->where('role', UserUnitAssignment::ROLE_SUPER_ADMIN)
+            ->exists();
+    }
+
+    /**
+     * Get IDs of organizational units this user is allowed to manage/view.
+     * If user is super_admin, returns null (meaning ALL units).
+     */
+    public function getPermittedOrgUnitIds(?string $requiredPermission = null): ?array
+    {
+        if ($this->isSuperAdmin()) {
+            return null; // Null signifies unrestricted access to all units
+        }
+
+        $assignments = $this->unitAssignments;
+        $unitIds = [];
+
+        foreach ($assignments as $assignment) {
+            if ($requiredPermission === 'can_edit_approved' && !$assignment->can_edit_approved) {
+                continue;
+            }
+            if ($requiredPermission === 'can_manage_employees' && !$assignment->can_manage_employees) {
+                continue;
+            }
+
+            if ($assignment->org_unit_id) {
+                $unitIds[] = $assignment->org_unit_id;
+                if ($assignment->include_sub_branches && $assignment->organizationalUnit) {
+                    $unitIds = array_merge($unitIds, $assignment->organizationalUnit->getDescendantIds());
+                }
+            }
+        }
+
+        return array_values(array_unique($unitIds));
+    }
+
+    /**
+     * Check if user has permission over a specific organizational unit
+     */
+    public function canAccessUnit(int|OrganizationalUnit $unit, ?string $requiredPermission = null): bool
+    {
+        if ($this->isSuperAdmin()) {
+            return true;
+        }
+
+        $unitId = $unit instanceof OrganizationalUnit ? $unit->id : $unit;
+        $permittedIds = $this->getPermittedOrgUnitIds($requiredPermission);
+
+        return $permittedIds !== null && in_array($unitId, $permittedIds, true);
+    }
+
+    /**
+     * Check if user has a specific granular permission over an organizational unit
+     * ensuring permissions never leak across different unit assignments.
+     */
+    public function hasUnitPermission(int|OrganizationalUnit $unit, string $permission): bool
+    {
+        if ($this->isSuperAdmin()) {
+            return true;
+        }
+
+        $unitId = $unit instanceof OrganizationalUnit ? $unit->id : $unit;
+
+        foreach ($this->unitAssignments as $assignment) {
+            if (!$assignment->$permission) {
+                continue;
+            }
+
+            if ($assignment->org_unit_id === $unitId) {
+                return true;
+            }
+
+            if ($assignment->include_sub_branches && $assignment->organizationalUnit) {
+                if (in_array($unitId, $assignment->organizationalUnit->getDescendantIds(), true)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 }

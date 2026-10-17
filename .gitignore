@@ -29,3 +29,5 @@ Thumbs.db
 *.zip
 *.sql
 root_htaccess_for_hostinger.txt
+env.production.txt
+employee_manager_deploy/

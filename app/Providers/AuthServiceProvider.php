@@ -20,6 +20,9 @@ class AuthServiceProvider extends ServiceProvider
         User::class => EmployeePolicy::class,
         Department::class => DepartmentPolicy::class,
         AttendanceRecord::class => AttendanceRecordPolicy::class,
+        \App\Models\OrganizationalUnit::class => \App\Policies\OrganizationalUnitPolicy::class,
+        \App\Models\Employee::class => \App\Policies\EmployeeRosterPolicy::class,
+        \App\Models\DailyRoster::class => \App\Policies\DailyRosterPolicy::class,
     ];
 
     /**
@@ -29,9 +32,13 @@ class AuthServiceProvider extends ServiceProvider
     {
         $this->registerPolicies();
 
-        // Simple gate: is the user an admin?
+        // Simple gate: is the user an admin or super_admin?
         Gate::define('admin', function (User $user) {
-            return $user->isAdmin();
+            return $user->isAdmin() || $user->isSuperAdmin();
+        });
+
+        Gate::define('super-admin', function (User $user) {
+            return $user->isSuperAdmin();
         });
     }
 }

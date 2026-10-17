@@ -21,30 +21,37 @@
                         لوحة التحكم
                     </a>
 
-                    <a href="{{ route('attendance.index') }}"
-                       class="px-3 py-2 rounded-md text-sm font-medium transition {{ request()->routeIs('attendance.index') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50' }}">
-                        سجلات الحضور
+                    <a href="{{ route('rosters.index') }}"
+                       class="px-3 py-2 rounded-md text-sm font-medium transition {{ request()->routeIs('rosters.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50' }}">
+                        التحضير اليومي
                     </a>
 
+                    <a href="{{ route('roster-employees.index') }}"
+                       class="px-3 py-2 rounded-md text-sm font-medium transition {{ request()->routeIs('roster-employees.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50' }}">
+                        سجل الموظفين
+                    </a>
+
+                    <a href="{{ route('roster-reports.index') }}"
+                       class="px-3 py-2 rounded-md text-sm font-medium transition {{ request()->routeIs('roster-reports.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50' }}">
+                        تقارير التحضير
+                    </a>
+
+                    @can('super-admin')
+                        <a href="{{ route('org-units.index') }}"
+                           class="px-3 py-2 rounded-md text-sm font-medium transition {{ request()->routeIs('org-units.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50' }}">
+                            الهيكل التنظيمي
+                        </a>
+
+                        <a href="{{ route('user-management.index') }}"
+                           class="px-3 py-2 rounded-md text-sm font-medium transition {{ request()->routeIs('user-management.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50' }}">
+                            إدارة المستخدمين
+                        </a>
+                    @endcan
+
                     @can('admin')
-                        <a href="{{ route('employees.index') }}"
-                           class="px-3 py-2 rounded-md text-sm font-medium transition {{ request()->routeIs('employees.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50' }}">
-                            الموظفون
-                        </a>
-
-                        <a href="{{ route('departments.index') }}"
-                           class="px-3 py-2 rounded-md text-sm font-medium transition {{ request()->routeIs('departments.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50' }}">
-                            الأقسام
-                        </a>
-
-                        <a href="{{ route('reports.index') }}"
-                           class="px-3 py-2 rounded-md text-sm font-medium transition {{ request()->routeIs('reports.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50' }}">
-                            التقارير
-                        </a>
-
-                        <a href="{{ route('audit-logs.index') }}"
-                           class="px-3 py-2 rounded-md text-sm font-medium transition {{ request()->routeIs('audit-logs.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50' }}">
-                            سجل التعديلات
+                        <a href="{{ route('attendance.index') }}"
+                           class="px-3 py-2 rounded-md text-sm font-medium transition text-gray-500 hover:text-gray-700 hover:bg-gray-50">
+                            النظام السابق
                         </a>
                     @endcan
                 </div>
@@ -102,12 +109,17 @@
     <!-- Mobile menu -->
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden border-t border-gray-200 bg-gray-50 px-4 pt-2 pb-3 space-y-1">
         <a href="{{ route('dashboard') }}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100">لوحة التحكم</a>
-        <a href="{{ route('attendance.index') }}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100">سجلات الحضور</a>
+        <a href="{{ route('rosters.index') }}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100">التحضير اليومي</a>
+        <a href="{{ route('roster-employees.index') }}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100">سجل الموظفين</a>
+        <a href="{{ route('roster-reports.index') }}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100">تقارير التحضير</a>
+
+        @can('super-admin')
+            <a href="{{ route('org-units.index') }}" class="block px-3 py-2 rounded-md text-base font-medium text-indigo-700 hover:bg-indigo-50 font-semibold">الهيكل التنظيمي</a>
+            <a href="{{ route('user-management.index') }}" class="block px-3 py-2 rounded-md text-base font-medium text-indigo-700 hover:bg-indigo-50 font-semibold">إدارة المستخدمين</a>
+        @endcan
+
         @can('admin')
-            <a href="{{ route('employees.index') }}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100">الموظفون</a>
-            <a href="{{ route('departments.index') }}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100">الأقسام</a>
-            <a href="{{ route('reports.index') }}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100">التقارير</a>
-            <a href="{{ route('audit-logs.index') }}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100">سجل التعديلات</a>
+            <a href="{{ route('attendance.index') }}" class="block px-3 py-2 rounded-md text-sm text-gray-500 hover:bg-gray-100">النظام السابق (الحضور والانصراف)</a>
         @endcan
         <div class="border-t border-gray-200 pt-2">
             <div class="px-3 py-1 font-semibold text-gray-800">{{ Auth::user()->name }}</div>
