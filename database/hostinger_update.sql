@@ -209,18 +209,24 @@ INSERT IGNORE INTO `migrations` (`migration`, `batch`) VALUES
 ('2026_10_17_012525_migrate_legacy_users_to_employees', 2);
 
 -- ----------------------------------------------------------------------------
--- 10. إدخال الهيكل التنظيمي المعتمد في حال عدم وجوده مسبقاً
+-- 10. إدخال الهيكل التنظيمي المعتمد في حال عدم وجوده مسبقاً وتصحيح الأنواع
 -- ----------------------------------------------------------------------------
 INSERT IGNORE INTO `organizational_units` (`id`, `name`, `code`, `type`, `parent_id`, `is_active`, `created_at`, `updated_at`) VALUES
-(1, 'القيادة الرئيسية', 'HQ-MAIN', 'قيادة رئيسية', NULL, 1, NOW(), NOW()),
-(2, 'شعبة الإدارة', 'HQ-ADM', 'شعبة', 1, 1, NOW(), NOW()),
-(3, 'قسم المتابعة', 'HQ-ADM-FOL', 'قسم', 2, 1, NOW(), NOW()),
-(4, 'شعبة الموارد البشرية', 'HQ-HR', 'شعبة', 1, 1, NOW(), NOW()),
-(5, 'القيادة الفرعية الأولى', 'SUB-01', 'قيادة فرعية', 1, 1, NOW(), NOW()),
-(6, 'المركز الأول', 'CTR-01', 'مركز', 5, 1, NOW(), NOW()),
-(7, 'المركز الثاني', 'CTR-02', 'مركز', 5, 1, NOW(), NOW()),
-(8, 'القيادة الفرعية الثانية', 'SUB-02', 'قيادة فرعية', 1, 1, NOW(), NOW()),
-(9, 'المركز الثالث', 'CTR-03', 'مركز', 8, 1, NOW(), NOW());
+(1, 'القيادة الرئيسية', 'HQ-MAIN', 'main_command', NULL, 1, NOW(), NOW()),
+(2, 'شعبة الإدارة', 'HQ-ADM', 'division', 1, 1, NOW(), NOW()),
+(3, 'قسم المتابعة', 'HQ-ADM-FOL', 'department', 2, 1, NOW(), NOW()),
+(4, 'شعبة الموارد البشرية', 'HQ-HR', 'division', 1, 1, NOW(), NOW()),
+(5, 'القيادة الفرعية الأولى', 'SUB-01', 'branch_command', 1, 1, NOW(), NOW()),
+(6, 'المركز الأول', 'CTR-01', 'center', 5, 1, NOW(), NOW()),
+(7, 'المركز الثاني', 'CTR-02', 'center', 5, 1, NOW(), NOW()),
+(8, 'القيادة الفرعية الثانية', 'SUB-02', 'branch_command', 1, 1, NOW(), NOW()),
+(9, 'المركز الثالث', 'CTR-03', 'center', 8, 1, NOW(), NOW());
+
+UPDATE `organizational_units` SET `type` = 'center' WHERE `type` = 'مركز';
+UPDATE `organizational_units` SET `type` = 'branch_command' WHERE `type` = 'قيادة فرعية';
+UPDATE `organizational_units` SET `type` = 'main_command' WHERE `type` = 'قيادة رئيسية';
+UPDATE `organizational_units` SET `type` = 'division' WHERE `type` = 'شعبة';
+UPDATE `organizational_units` SET `type` = 'department' WHERE `type` = 'قسم';
 
 -- ----------------------------------------------------------------------------
 -- 11. ترحيل حسابات الموظفين السابقة إلى جدول الموظفين الجديد (بشكل غير مدمر)

@@ -40,6 +40,34 @@ class OrganizationalUnit extends Model
         ];
     }
 
+    public function getTypeAttribute($value): ?string
+    {
+        $map = [
+            'مركز' => self::TYPE_CENTER,
+            'قيادة فرعية' => self::TYPE_BRANCH_COMMAND,
+            'قيادة رئيسية' => self::TYPE_MAIN_COMMAND,
+            'شعبة' => self::TYPE_DIVISION,
+            'قسم' => self::TYPE_DEPARTMENT,
+        ];
+
+        return $map[$value] ?? $value;
+    }
+
+    public function isCenter(): bool
+    {
+        return $this->type === self::TYPE_CENTER;
+    }
+
+    public function isBranchCommand(): bool
+    {
+        return $this->type === self::TYPE_BRANCH_COMMAND;
+    }
+
+    public function isMainCommand(): bool
+    {
+        return $this->type === self::TYPE_MAIN_COMMAND;
+    }
+
     public function getTypeLabelAttribute(): string
     {
         return self::typeLabels()[$this->type] ?? $this->type;

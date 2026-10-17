@@ -15,8 +15,15 @@ class RealOrganizationDataSeeder extends Seeder
     public function run(): void
     {
         DB::transaction(function () {
-            // 1. Organizational Units
-            $hq = OrganizationalUnit::firstOrCreate(
+            // 1. Normalize any Arabic unit types in database
+            DB::table('organizational_units')->where('type', 'مركز')->update(['type' => OrganizationalUnit::TYPE_CENTER]);
+            DB::table('organizational_units')->where('type', 'قيادة فرعية')->update(['type' => OrganizationalUnit::TYPE_BRANCH_COMMAND]);
+            DB::table('organizational_units')->where('type', 'قيادة رئيسية')->update(['type' => OrganizationalUnit::TYPE_MAIN_COMMAND]);
+            DB::table('organizational_units')->where('type', 'شعبة')->update(['type' => OrganizationalUnit::TYPE_DIVISION]);
+            DB::table('organizational_units')->where('type', 'قسم')->update(['type' => OrganizationalUnit::TYPE_DEPARTMENT]);
+
+            // 2. Organizational Units
+            $hq = OrganizationalUnit::updateOrCreate(
                 ['code' => 'HQ-MAIN'],
                 [
                     'name' => 'القيادة الرئيسية',
@@ -26,7 +33,7 @@ class RealOrganizationDataSeeder extends Seeder
                 ]
             );
 
-            $divisionAdm = OrganizationalUnit::firstOrCreate(
+            $divisionAdm = OrganizationalUnit::updateOrCreate(
                 ['code' => 'HQ-ADM'],
                 [
                     'name' => 'شعبة الإدارة',
@@ -36,7 +43,7 @@ class RealOrganizationDataSeeder extends Seeder
                 ]
             );
 
-            $deptFollowup = OrganizationalUnit::firstOrCreate(
+            $deptFollowup = OrganizationalUnit::updateOrCreate(
                 ['code' => 'HQ-ADM-FOL'],
                 [
                     'name' => 'قسم المتابعة',
@@ -46,7 +53,7 @@ class RealOrganizationDataSeeder extends Seeder
                 ]
             );
 
-            $divisionHr = OrganizationalUnit::firstOrCreate(
+            $divisionHr = OrganizationalUnit::updateOrCreate(
                 ['code' => 'HQ-HR'],
                 [
                     'name' => 'شعبة الموارد البشرية',
@@ -56,7 +63,7 @@ class RealOrganizationDataSeeder extends Seeder
                 ]
             );
 
-            $sub1 = OrganizationalUnit::firstOrCreate(
+            $sub1 = OrganizationalUnit::updateOrCreate(
                 ['code' => 'SUB-01'],
                 [
                     'name' => 'القيادة الفرعية الأولى',
@@ -66,7 +73,7 @@ class RealOrganizationDataSeeder extends Seeder
                 ]
             );
 
-            $ctr1 = OrganizationalUnit::firstOrCreate(
+            $ctr1 = OrganizationalUnit::updateOrCreate(
                 ['code' => 'CTR-01'],
                 [
                     'name' => 'المركز الأول',
@@ -76,7 +83,7 @@ class RealOrganizationDataSeeder extends Seeder
                 ]
             );
 
-            $ctr2 = OrganizationalUnit::firstOrCreate(
+            $ctr2 = OrganizationalUnit::updateOrCreate(
                 ['code' => 'CTR-02'],
                 [
                     'name' => 'المركز الثاني',
@@ -86,7 +93,7 @@ class RealOrganizationDataSeeder extends Seeder
                 ]
             );
 
-            $sub2 = OrganizationalUnit::firstOrCreate(
+            $sub2 = OrganizationalUnit::updateOrCreate(
                 ['code' => 'SUB-02'],
                 [
                     'name' => 'القيادة الفرعية الثانية',
@@ -96,7 +103,7 @@ class RealOrganizationDataSeeder extends Seeder
                 ]
             );
 
-            $ctr3 = OrganizationalUnit::firstOrCreate(
+            $ctr3 = OrganizationalUnit::updateOrCreate(
                 ['code' => 'CTR-03'],
                 [
                     'name' => 'المركز الثالث',
@@ -429,6 +436,33 @@ class RealOrganizationDataSeeder extends Seeder
                 'needs_review' => false,
                 'review_notes' => null,
             ]);
+
+            // 5. Ensure CTR-01 roster for today is in 'center_locked' status
+            // so Brigadier Ibrahim can immediately review and approve it
+            $today = \Carbon\Carbon::now('Asia/Riyadh')->toDateString();
+            $rosterCtr1 = \App\Models\DailyRoster::where('org_unit_id', $ctr1->id)
+                ->where('date', $today)
+                ->first();
+
+            if ($rosterCtr1) {
+                $rosterCtr1->update([
+                    'status' => \App\Models\DailyRoster::STATUS_CENTER_LOCKED,
+                    'submitted_by' => $center1Admin->id,
+                    'submitted_at' => \Carbon\Carbon::now('Asia/Riyadh'),
+                    'branch_approved_by' => null,
+                    'branch_approved_at' => null,
+                    'fully_approved_by' => null,
+                    'fully_approved_at' => null,
+                    'was_corrected' => false,
+                ]);
+
+                // Ensure all items have a status
+                foreach ($rosterCtr1->items as $item) {
+                    if (!$item->status) {
+                        $item->update(['status' => 'حاضر']);
+                    }
+                }
+            }
         });
     }
 }
