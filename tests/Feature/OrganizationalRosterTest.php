@@ -734,5 +734,46 @@ class OrganizationalRosterTest extends TestCase
             'code' => 'CTR-ERR-01',
         ]);
     }
+
+    public function test_unit_admin_can_access_create_employee_page()
+    {
+        // Center admin with can_manage_employees
+        $centerAdmin = User::create([
+            'name' => 'قائد المركز التجريبي',
+            'email' => 'ctr_admin_test@test.com',
+            'password' => bcrypt('password123'),
+            'role' => 'employee',
+            'is_active' => true,
+        ]);
+
+        UserUnitAssignment::create([
+            'user_id' => $centerAdmin->id,
+            'org_unit_id' => $this->center1->id,
+            'role' => UserUnitAssignment::ROLE_CENTER_ADMIN,
+            'include_sub_branches' => false,
+            'can_edit_approved' => false,
+            'can_manage_employees' => true,
+        ]);
+
+        // Access create form directly without org_unit_id query param
+        $response = $this->actingAs($centerAdmin)->get(route('roster-employees.create'));
+        $response->assertStatus(200);
+
+        // Store employee inside his center
+        $storeResponse = $this->actingAs($centerAdmin)->post(route('roster-employees.store'), [
+            'name' => 'موظف جديد بالمركز',
+            'national_id' => '1044433322',
+            'job_title' => 'مناوب عمليات',
+            'org_unit_id' => $this->center1->id,
+            'is_active' => '1',
+        ]);
+        $storeResponse->assertRedirect(route('roster-employees.index'));
+        $this->assertDatabaseHas('employees', [
+            'name' => 'موظف جديد بالمركز',
+            'national_id' => '1044433322',
+            'org_unit_id' => $this->center1->id,
+        ]);
+    }
 }
+
 

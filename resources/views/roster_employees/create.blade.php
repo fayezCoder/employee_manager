@@ -63,9 +63,11 @@
                         <label for="org_unit_id" class="block text-xs font-semibold text-gray-700 mb-1">الجهة التنظيمية المسند إليها <span class="text-rose-500">*</span></label>
                         <select name="org_unit_id" id="org_unit_id" required
                                 class="w-full rounded-xl border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 text-xs shadow-sm">
-                            <option value="">-- اختر الجهة التابع لها الموظف --</option>
+                            @if($units->count() > 1)
+                                <option value="">-- اختر الجهة التابع لها الموظف --</option>
+                            @endif
                             @foreach($units as $unit)
-                                <option value="{{ $unit->id }}" {{ old('org_unit_id', request('org_unit_id')) == $unit->id ? 'selected' : '' }}>
+                                <option value="{{ $unit->id }}" {{ old('org_unit_id', request('org_unit_id', $units->count() === 1 ? $unit->id : null)) == $unit->id ? 'selected' : '' }}>
                                     {{ $unit->name }} ({{ $unit->type_label }})
                                 </option>
                             @endforeach

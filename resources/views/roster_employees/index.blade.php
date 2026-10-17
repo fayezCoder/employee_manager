@@ -7,10 +7,12 @@
                 </h2>
                 <p class="text-xs text-gray-500 mt-1">سجل الموظفين التابعين للجهات التنظيمية لإدراجهم في كشوفات الحضور اليومية</p>
             </div>
-            <a href="{{ route('roster-employees.create') }}" class="inline-flex items-center gap-1.5 px-4 py-2 bg-indigo-600 border border-transparent rounded-lg font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 active:bg-indigo-900 transition">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                إضافة موظف جديد
-            </a>
+            @can('create', \App\Models\Employee::class)
+                <a href="{{ route('roster-employees.create') }}" class="inline-flex items-center gap-1.5 px-4 py-2 bg-indigo-600 border border-transparent rounded-lg font-semibold text-xs text-white uppercase tracking-widest hover:bg-indigo-700 active:bg-indigo-900 transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    إضافة موظف جديد
+                </a>
+            @endcan
         </div>
     </x-slot>
 

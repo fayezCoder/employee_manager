@@ -33,7 +33,7 @@ class EmployeeRosterPolicy
 
     /**
      * Determine whether the user can create employees.
-     * Allowed for super_admin or user with can_manage_employees for the target unit.
+     * Allowed for super_admin or user with can_manage_employees for the target unit (or any unit if not specified).
      */
     public function create(User $user, ?int $orgUnitId = null): bool
     {
@@ -41,11 +41,14 @@ class EmployeeRosterPolicy
             return true;
         }
 
-        if (!$orgUnitId) {
-            return false;
+        // If specific unit requested, verify permission on that unit
+        if ($orgUnitId) {
+            return $user->canAccessUnit($orgUnitId, 'can_manage_employees');
         }
 
-        return $user->canAccessUnit($orgUnitId, 'can_manage_employees');
+        // When entering the create page without pre-selected unit, check if user has permission in at least one unit
+        $permittedIds = $user->getPermittedOrgUnitIds('can_manage_employees');
+        return !empty($permittedIds);
     }
 
     /**
