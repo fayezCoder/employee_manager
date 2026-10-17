@@ -101,14 +101,10 @@ try {
         @opcache_reset();
     }
 
-    // Run Real Organization Data Seeder if requested or if no employees are assigned to units yet
-    $shouldSeed = isset($_GET['seed']) || isset($_GET['seed_real']) || (Schema::hasTable('employees') && DB::table('employees')->whereNotNull('org_unit_id')->count() === 0);
-
-    if ($shouldSeed) {
-        $seeder = new \Database\Seeders\RealOrganizationDataSeeder();
-        $seeder->run();
-        $seedOutput = 'تمت تهيئة وتغذية النظام بكامل الهيكل التنظيمي، وحسابات المسؤولين، وتوزيع 17 موظفاً حقيقياً على الجهات والمراكز بنجاح!';
-    }
+    // Always run Real Organization Data Seeder to ensure all units and employees are mapped
+    $seeder = new \Database\Seeders\RealOrganizationDataSeeder();
+    $seeder->run();
+    $seedOutput = 'تمت تهيئة وتغذية النظام بكامل الهيكل التنظيمي، وحسابات المسؤولين، وتوزيع كافة الموظفين على المراكز والشعب بنجاح!';
 } catch (\Throwable $e) {
     $success = false;
     $error = $e->getMessage();

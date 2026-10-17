@@ -249,8 +249,100 @@ class RealOrganizationDataSeeder extends Seeder
             // Ensure Sara has NO unit assignments so she is purely a regular employee
             UserUnitAssignment::where('user_id', $saraUser->id)->delete();
 
-            // 3. Real Active Employees Distributed Across Units
-            $employeesList = [
+            // 3. Map legacy employees and add real organizational staff
+            $legacyMap = [
+                'ahmed@example.com' => [
+                    'name' => 'أحمد علي',
+                    'national_id' => '1066677788',
+                    'job_title' => 'باحث متابعة ميدانية',
+                    'org_unit_id' => $deptFollowup->id,
+                ],
+                'sara@example.com' => [
+                    'name' => 'سارة محمد',
+                    'national_id' => '1088899900',
+                    'job_title' => 'أخصائية شؤون موظفين',
+                    'org_unit_id' => $divisionHr->id,
+                ],
+                'khaled@example.com' => [
+                    'name' => 'خالد عبد الله',
+                    'national_id' => '1155566677',
+                    'job_title' => 'مناوب عمليات ومراقبة',
+                    'org_unit_id' => $ctr2->id,
+                ],
+                'fatima@example.com' => [
+                    'name' => 'فاطمة الزهراء',
+                    'national_id' => '1099900011',
+                    'job_title' => 'مسؤولة تدريب وتطوير',
+                    'org_unit_id' => $divisionHr->id,
+                ],
+                'omar@example.com' => [
+                    'name' => 'عمر الفاروق',
+                    'national_id' => '1122233344',
+                    'job_title' => 'مشغل أنظمة مناوب',
+                    'org_unit_id' => $ctr1->id,
+                ],
+                'maryam@example.com' => [
+                    'name' => 'مريم حسن',
+                    'national_id' => '1144455566',
+                    'job_title' => 'مراقبة إدارية',
+                    'org_unit_id' => $ctr1->id,
+                ],
+                'youssef@example.com' => [
+                    'name' => 'يوسف إبراهيم',
+                    'national_id' => '1133344455',
+                    'job_title' => 'فني تشغيل وصيانة',
+                    'org_unit_id' => $ctr1->id,
+                ],
+                'noura@example.com' => [
+                    'name' => 'نورة التميمي',
+                    'national_id' => '1166677788',
+                    'job_title' => 'مسؤولة دعم ومساندة',
+                    'org_unit_id' => $ctr2->id,
+                ],
+            ];
+
+            foreach ($legacyMap as $email => $info) {
+                $user = User::where('email', $email)->first();
+                $userId = $user?->id;
+
+                $emp = null;
+                if ($userId) {
+                    $emp = Employee::where('user_id', $userId)->first();
+                }
+                if (!$emp) {
+                    $emp = Employee::where('name', $info['name'])->first();
+                }
+                if (!$emp) {
+                    $emp = Employee::where('national_id', $info['national_id'])->first();
+                }
+
+                if ($emp) {
+                    $emp->update([
+                        'name' => $info['name'],
+                        'national_id' => $info['national_id'],
+                        'job_title' => $info['job_title'],
+                        'org_unit_id' => $info['org_unit_id'],
+                        'user_id' => $userId ?? $emp->user_id,
+                        'is_active' => true,
+                        'needs_review' => false,
+                        'review_notes' => null,
+                    ]);
+                } else {
+                    Employee::create([
+                        'name' => $info['name'],
+                        'national_id' => $info['national_id'],
+                        'job_title' => $info['job_title'],
+                        'org_unit_id' => $info['org_unit_id'],
+                        'user_id' => $userId,
+                        'is_active' => true,
+                        'needs_review' => false,
+                        'review_notes' => null,
+                    ]);
+                }
+            }
+
+            // 4. Additional staff for full hierarchy realism
+            $additionalEmployees = [
                 // القيادة الرئيسية
                 [
                     'name' => 'العقيد فهد العتيبي',
@@ -265,56 +357,32 @@ class RealOrganizationDataSeeder extends Seeder
                     'org_unit_id' => $hq->id,
                 ],
                 [
-                    'name' => 'الموظف تركي الحربي',
+                    'name' => 'تركي الحربي',
                     'national_id' => '1033344455',
                     'job_title' => 'مدخل بيانات',
                     'org_unit_id' => $hq->id,
                 ],
-
                 // شعبة الإدارة
                 [
-                    'name' => 'الموظف سعد المطيري',
+                    'name' => 'سعد المطيري',
                     'national_id' => '1044455566',
                     'job_title' => 'أخصائي شؤون إدارية',
                     'org_unit_id' => $divisionAdm->id,
                 ],
                 [
-                    'name' => 'الموظف حمد القحطاني',
+                    'name' => 'حمد القحطاني',
                     'national_id' => '1055566677',
                     'job_title' => 'سكرتير إداري',
                     'org_unit_id' => $divisionAdm->id,
                 ],
-
                 // قسم المتابعة
                 [
-                    'name' => 'الموظف أحمد علي',
-                    'national_id' => '1066677788',
-                    'job_title' => 'باحث متابعة ميدانية',
-                    'org_unit_id' => $deptFollowup->id,
-                ],
-                [
-                    'name' => 'الموظفة ريم الشمري',
+                    'name' => 'ريم الشمري',
                     'national_id' => '1077788899',
                     'job_title' => 'أخصائية تقارير ومتابعة',
                     'org_unit_id' => $deptFollowup->id,
                 ],
-
-                // شعبة الموارد البشرية
-                [
-                    'name' => 'سارة محمد',
-                    'national_id' => '1088899900',
-                    'job_title' => 'أخصائية شؤون موظفين',
-                    'org_unit_id' => $divisionHr->id,
-                    'user_id' => $saraUser->id,
-                ],
-                [
-                    'name' => 'الموظفة فاطمة الزهراء',
-                    'national_id' => '1099900011',
-                    'job_title' => 'مسؤولة تدريب وتطوير',
-                    'org_unit_id' => $divisionHr->id,
-                ],
-
-                // القيادة الفرعية الأولى (موظفو القيادة المباشرون)
+                // القيادة الفرعية الأولى
                 [
                     'name' => 'الرائد منصور الشهري',
                     'national_id' => '1100011122',
@@ -322,47 +390,12 @@ class RealOrganizationDataSeeder extends Seeder
                     'org_unit_id' => $sub1->id,
                 ],
                 [
-                    'name' => 'الموظف عبد العزيز العنزي',
+                    'name' => 'عبد العزيز العنزي',
                     'national_id' => '1111122233',
                     'job_title' => 'كاتب سجلات ومراسلات',
                     'org_unit_id' => $sub1->id,
                 ],
-
-                // المركز الأول (التابع للقيادة الفرعية الأولى)
-                [
-                    'name' => 'عمر الفاروق',
-                    'national_id' => '1122233344',
-                    'job_title' => 'مشغل أنظمة مناوب',
-                    'org_unit_id' => $ctr1->id,
-                ],
-                [
-                    'name' => 'يوسف إبراهيم',
-                    'national_id' => '1133344455',
-                    'job_title' => 'فني تشغيل وصيانة',
-                    'org_unit_id' => $ctr1->id,
-                ],
-                [
-                    'name' => 'مريم حسن',
-                    'national_id' => '1144455566',
-                    'job_title' => 'مراقبة إدارية',
-                    'org_unit_id' => $ctr1->id,
-                ],
-
-                // المركز الثاني (التابع للقيادة الفرعية الأولى)
-                [
-                    'name' => 'خالد عبد الله',
-                    'national_id' => '1155566677',
-                    'job_title' => 'مناوب عمليات ومراقبة',
-                    'org_unit_id' => $ctr2->id,
-                ],
-                [
-                    'name' => 'نورة التميمي',
-                    'national_id' => '1166677788',
-                    'job_title' => 'مسؤولة دعم ومساندة',
-                    'org_unit_id' => $ctr2->id,
-                ],
-
-                // المركز الثالث (التابع للقيادة الفرعية الثانية)
+                // المركز الثالث
                 [
                     'name' => 'مشعل الشمري',
                     'national_id' => '1177788899',
@@ -377,20 +410,25 @@ class RealOrganizationDataSeeder extends Seeder
                 ],
             ];
 
-            foreach ($employeesList as $empData) {
+            foreach ($additionalEmployees as $emp) {
                 Employee::updateOrCreate(
-                    ['national_id' => $empData['national_id']],
+                    ['national_id' => $emp['national_id']],
                     [
-                        'name' => $empData['name'],
-                        'job_title' => $empData['job_title'],
-                        'org_unit_id' => $empData['org_unit_id'],
-                        'user_id' => $empData['user_id'] ?? null,
+                        'name' => $emp['name'],
+                        'job_title' => $emp['job_title'],
+                        'org_unit_id' => $emp['org_unit_id'],
                         'is_active' => true,
                         'needs_review' => false,
                         'review_notes' => null,
                     ]
                 );
             }
+
+            // Remove any pending review flags now that all are assigned
+            Employee::whereNotNull('org_unit_id')->update([
+                'needs_review' => false,
+                'review_notes' => null,
+            ]);
         });
     }
 }
