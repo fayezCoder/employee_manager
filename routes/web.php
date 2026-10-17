@@ -94,4 +94,9 @@ Route::middleware(['auth'])->group(function () {
     });
 });
 
+// Hostinger / Web-based Migration and Cache Runner
+Route::match(['GET', 'POST'], '/system/deploy-migrate', [\App\Http\Controllers\SystemDeploymentController::class, 'index'])
+    ->name('system.deploy-migrate');
+
 require __DIR__.'/auth.php';
+

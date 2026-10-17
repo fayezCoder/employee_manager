@@ -46,6 +46,11 @@
                            class="px-3 py-2 rounded-md text-sm font-medium transition {{ request()->routeIs('user-management.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50' }}">
                             إدارة المستخدمين
                         </a>
+
+                        <a href="{{ route('system.deploy-migrate') }}"
+                           class="px-3 py-2 rounded-md text-sm font-medium transition {{ request()->routeIs('system.deploy-migrate') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50' }}">
+                            تحديث قاعدة البيانات
+                        </a>
                     @endcan
 
                     @can('admin')
@@ -116,6 +121,7 @@
         @can('super-admin')
             <a href="{{ route('org-units.index') }}" class="block px-3 py-2 rounded-md text-base font-medium text-indigo-700 hover:bg-indigo-50 font-semibold">الهيكل التنظيمي</a>
             <a href="{{ route('user-management.index') }}" class="block px-3 py-2 rounded-md text-base font-medium text-indigo-700 hover:bg-indigo-50 font-semibold">إدارة المستخدمين</a>
+            <a href="{{ route('system.deploy-migrate') }}" class="block px-3 py-2 rounded-md text-base font-medium text-indigo-700 hover:bg-indigo-50 font-semibold">تحديث قاعدة البيانات</a>
         @endcan
 
         @can('admin')

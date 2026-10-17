@@ -28,6 +28,7 @@ Thumbs.db
 # Deployment files
 *.zip
 *.sql
+!database/hostinger_update.sql
 root_htaccess_for_hostinger.txt
 env.production.txt
 employee_manager_deploy/
