@@ -108,6 +108,41 @@
                 </div>
             </div>
 
+            @if($roster->submitted_at || $roster->branch_approved_at || $roster->fully_approved_at)
+                <!-- Approval Workflow Details Card -->
+                <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4 text-xs space-y-2">
+                    <div class="font-bold text-slate-800 flex items-center gap-1.5 mb-2">
+                        <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <span>مسار واعتمادات الكشف:</span>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        @if($roster->submitted_at)
+                            <div class="bg-white p-3 rounded-xl border border-slate-200">
+                                <span class="text-slate-400 block text-[11px]">قفل واعتماد المركز</span>
+                                <span class="font-bold text-slate-800 block mt-0.5">{{ $roster->submitter?->name ?? 'مسؤول المركز' }}</span>
+                                <span class="text-slate-500 font-mono text-[11px] block mt-0.5" dir="ltr">{{ $roster->submitted_at->format('Y-m-d H:i') }}</span>
+                            </div>
+                        @endif
+
+                        @if($roster->branch_approved_at)
+                            <div class="bg-white p-3 rounded-xl border border-emerald-200 bg-emerald-50/20">
+                                <span class="text-emerald-700 block text-[11px] font-semibold">اعتماد القيادة الفرعية</span>
+                                <span class="font-bold text-slate-800 block mt-0.5">{{ $roster->branchApprover?->name ?? 'قائد القيادة الفرعية' }}</span>
+                                <span class="text-slate-500 font-mono text-[11px] block mt-0.5" dir="ltr">{{ $roster->branch_approved_at->format('Y-m-d H:i') }}</span>
+                            </div>
+                        @endif
+
+                        @if($roster->isCompleted())
+                            <div class="bg-white p-3 rounded-xl border border-blue-200 bg-blue-50/20">
+                                <span class="text-blue-700 block text-[11px] font-semibold">حالة الاعتماد النهائي</span>
+                                <span class="font-bold text-blue-900 block mt-0.5">معتمد ومكتمل 100%</span>
+                                <span class="text-slate-500 text-[11px] block mt-0.5">سجل رسمي مقفل</span>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            @endif
+
             <!-- Attendance Grid Form -->
             <form id="rosterForm" method="POST" action="{{ route('rosters.update', $roster) }}">
                 @csrf
