@@ -5,20 +5,21 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'نظام الحضور') }}</title>
+        <title>{{ config('app.name', 'نظام إدارة الحضور والتحضير') }}</title>
 
         <!-- Fonts -->
-        <link rel="preconnect" href="https://fonts.bunny.net">
-        <link href="https://fonts.bunny.net/css?family=noto-sans-arabic:400,500,600,700&display=swap" rel="stylesheet" />
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet">
 
         <!-- Scripts -->
         @vite(['resources/css/app.css', 'resources/js/app.js'])
 
         <style>
-            body { font-family: 'Noto Sans Arabic', sans-serif; }
+            body { font-family: 'Tajawal', sans-serif; }
         </style>
     </head>
-    <body class="font-sans antialiased" dir="rtl">
+    <body class="font-sans antialiased bg-slate-50 text-slate-800" dir="rtl">
         <div class="min-h-screen bg-gray-50">
             @include('layouts.navigation')
 
