@@ -180,7 +180,7 @@
                             </thead>
                             <tbody class="divide-y divide-gray-100">
                                 @forelse($roster->items as $index => $item)
-                                    <tr class="hover:bg-slate-50/60 transition">
+                                    <tr class="hover:bg-slate-50/60">
                                         <td class="px-4 py-3.5 text-center text-gray-400 font-mono">
                                              {{ $index + 1 }}
                                         </td>
@@ -196,8 +196,7 @@
                                         <td class="px-5 py-3.5">
                                             <select name="items[{{ $item->id }}][status]"
                                                     {{ !$canUpdate ? 'disabled' : '' }}
-                                                    onchange="this.classList.remove('border-rose-500', 'bg-rose-50', 'text-gray-400'); if(this.value){this.classList.add('font-semibold','text-gray-900');}else{this.classList.add('text-gray-400');}"
-                                                    class="w-full rounded-xl border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 text-xs shadow-sm {{ $item->status ? 'font-semibold text-gray-900' : 'text-gray-400' }}">
+                                                    class="roster-status-select w-full rounded-xl border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 text-xs shadow-sm bg-white {{ $item->status ? 'font-semibold text-gray-900' : 'text-gray-400' }}">
                                                 <option value="" class="text-gray-400">-- غير محدد --</option>
                                                 @foreach($statuses as $status)
                                                     <option value="{{ $status }}" {{ $item->status === $status ? 'selected' : '' }}>
@@ -250,6 +249,23 @@
             </form>
 
             <script>
+                document.addEventListener('DOMContentLoaded', function () {
+                    const form = document.getElementById('rosterForm');
+                    if (form) {
+                        form.addEventListener('change', function (e) {
+                            if (e.target && e.target.classList.contains('roster-status-select')) {
+                                const s = e.target;
+                                s.classList.remove('border-rose-500', 'bg-rose-50', 'text-gray-400');
+                                if (s.value) {
+                                    s.classList.add('font-semibold', 'text-gray-900');
+                                } else {
+                                    s.classList.add('text-gray-400');
+                                }
+                            }
+                        });
+                    }
+                });
+
                 function setAllPresent() {
                     const form = document.getElementById('rosterForm');
                     if (!form) return;
