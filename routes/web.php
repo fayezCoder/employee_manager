@@ -60,6 +60,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/roster-reports/export', [\App\Http\Controllers\RosterReportController::class, 'export'])->name('roster-reports.export');
     Route::get('/roster-reports/audit-logs', [\App\Http\Controllers\RosterReportController::class, 'auditLogs'])->name('roster-reports.audit-logs');
 
+    // Absence Investigations (7 Days SLA Tracking)
+    Route::get('/investigations', [\App\Http\Controllers\AbsenceInvestigationController::class, 'index'])->name('investigations.index');
+    Route::put('/investigations/{item}', [\App\Http\Controllers\AbsenceInvestigationController::class, 'update'])->name('investigations.update');
+
     // Super Admin Only: Organizational Units & User Hierarchy Assignments
     Route::middleware(['can:super-admin'])->group(function () {
         Route::resource('org-units', \App\Http\Controllers\OrganizationalUnitController::class)

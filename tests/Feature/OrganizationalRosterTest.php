@@ -838,6 +838,70 @@ class OrganizationalRosterTest extends TestCase
         $this->assertTrue(User::where('email', $this->superAdmin->email)->exists());
         $this->assertDatabaseHas('organizational_units', ['id' => $this->center1->id]);
     }
+
+    public function test_absence_investigation_workflow_and_overdue_state()
+    {
+        $roster = DailyRoster::create([
+            'org_unit_id' => $this->center1->id,
+            'date' => Carbon::today('Asia/Riyadh')->toDateString(),
+            'status' => DailyRoster::STATUS_COMPLETED,
+            'created_by' => $this->superAdmin->id,
+            'version' => 1,
+        ]);
+
+        $emp = Employee::create([
+            'name' => 'موظف غائب للاختبار',
+            'national_id' => '1099112233',
+            'org_unit_id' => $this->center1->id,
+            'is_active' => true,
+        ]);
+
+        // 1. Fresh absence (within 7 days) -> pending
+        $freshItem = DailyRosterItem::create([
+            'daily_roster_id' => $roster->id,
+            'employee_id' => $emp->id,
+            'date' => Carbon::today('Asia/Riyadh')->toDateString(),
+            'status' => DailyRosterItem::STATUS_ABSENT,
+            'employee_name_snapshot' => $emp->name,
+        ]);
+
+        $this->assertEquals('pending', $freshItem->getInvestigationState());
+        $this->assertStringContainsString('قيد المتابعة', $freshItem->investigation_label);
+
+        // 2. Old absence (8 days ago) without investigation -> overdue ("لم يتم التحقيق")
+        $oldRoster = DailyRoster::create([
+            'org_unit_id' => $this->center1->id,
+            'date' => Carbon::today('Asia/Riyadh')->subDays(8)->toDateString(),
+            'status' => DailyRoster::STATUS_COMPLETED,
+            'created_by' => $this->superAdmin->id,
+            'version' => 1,
+        ]);
+
+        $overdueItem = DailyRosterItem::create([
+            'daily_roster_id' => $oldRoster->id,
+            'employee_id' => $emp->id,
+            'date' => Carbon::today('Asia/Riyadh')->subDays(8)->toDateString(),
+            'status' => DailyRosterItem::STATUS_ABSENT,
+            'employee_name_snapshot' => $emp->name,
+        ]);
+
+        $this->assertEquals('overdue', $overdueItem->getInvestigationState());
+        $this->assertEquals('لم يتم التحقيق', $overdueItem->investigation_label);
+
+        // 3. Super Admin records investigation number -> becomes investigated
+        $this->actingAs($this->superAdmin);
+        $response = $this->put(route('investigations.update', $overdueItem), [
+            'investigation_number' => 'محضر/1447/88',
+            'investigation_status' => 'completed',
+            'investigation_notes' => 'تم مساءلة الموظف وإحالة الأوراق للجهة المختصة',
+        ]);
+
+        $response->assertSessionHas('status');
+        $overdueItem->refresh();
+        $this->assertEquals('investigated', $overdueItem->getInvestigationState());
+        $this->assertEquals('محضر/1447/88', $overdueItem->investigation_number);
+        $this->assertStringContainsString('تم التحقيق', $overdueItem->investigation_label);
+    }
 }
 
 

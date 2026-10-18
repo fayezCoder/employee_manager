@@ -20,11 +20,53 @@ class DailyRosterItem extends Model
         'employee_name_snapshot',
         'employee_national_id_snapshot',
         'employee_job_title_snapshot',
+        'investigation_number',
+        'investigation_status',
+        'investigation_notes',
+        'investigated_at',
+        'investigated_by',
     ];
 
     protected $casts = [
         'date' => 'date',
+        'investigated_at' => 'datetime',
     ];
+
+    public const INVESTIGATION_STATUS_COMPLETED = 'completed';
+    public const INVESTIGATION_STATUS_PENDING = 'pending';
+
+    /**
+     * Check if investigation is pending or overdue (7 days limit)
+     */
+    public function getInvestigationState(): string
+    {
+        if ($this->status !== self::STATUS_ABSENT) {
+            return 'not_applicable';
+        }
+
+        if (!empty($this->investigation_number)) {
+            return 'investigated'; // تم التحقيق
+        }
+
+        $absenceDate = $this->date ?? $this->created_at;
+        $daysDiff = (int) $absenceDate->diffInDays(now('Asia/Riyadh'), false);
+
+        if ($daysDiff > 7) {
+            return 'overdue'; // لم يتم التحقيق (انتهت المهلة)
+        }
+
+        return 'pending'; // قيد التحقيق (ضمن المهلة)
+    }
+
+    public function getInvestigationLabelAttribute(): string
+    {
+        return match ($this->getInvestigationState()) {
+            'investigated' => 'تم التحقيق (قيد: ' . $this->investigation_number . ')',
+            'overdue' => 'لم يتم التحقيق',
+            'pending' => 'قيد المتابعة (باقي ' . max(0, 7 - (int) ($this->date ?? $this->created_at)->diffInDays(now('Asia/Riyadh'), false)) . ' يوم)',
+            default => '—',
+        };
+    }
 
     /**
      * The 14 exact operational attendance statuses

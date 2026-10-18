@@ -36,6 +36,11 @@
                            class="px-3 py-2 rounded-md text-sm font-medium transition {{ request()->routeIs('roster-reports.*') ? 'bg-indigo-50 text-indigo-700' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50' }}">
                             تقارير التحضير
                         </a>
+
+                        <a href="{{ route('investigations.index') }}"
+                           class="px-3 py-2 rounded-md text-sm font-medium transition {{ request()->routeIs('investigations.*') ? 'bg-indigo-50 text-indigo-700 font-semibold' : 'text-gray-600 hover:text-gray-900 hover:bg-gray-50' }}">
+                            متابعة التحقيقات
+                        </a>
                     @endif
 
                     @can('super-admin')
@@ -121,6 +126,7 @@
             <a href="{{ route('rosters.index') }}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100">التحضير اليومي</a>
             <a href="{{ route('roster-employees.index') }}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100">سجل الموظفين</a>
             <a href="{{ route('roster-reports.index') }}" class="block px-3 py-2 rounded-md text-base font-medium text-gray-700 hover:bg-gray-100">تقارير التحضير</a>
+            <a href="{{ route('investigations.index') }}" class="block px-3 py-2 rounded-md text-base font-medium text-indigo-700 hover:bg-indigo-50 font-semibold">متابعة التحقيقات (7 أيام)</a>
         @endif
 
         @can('super-admin')

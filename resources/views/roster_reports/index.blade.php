@@ -88,6 +88,7 @@
                                 <th class="px-5 py-3.5">اسم الموظف</th>
                                 <th class="px-5 py-3.5">رقم الهوية الوطنية</th>
                                 <th class="px-5 py-3.5">الحالة المسجلة</th>
+                                <th class="px-5 py-3.5">المساءلة / التحقيق</th>
                                 <th class="px-5 py-3.5">الملاحظات</th>
                                 <th class="px-5 py-3.5 text-center">حالة الكشف</th>
                             </tr>
@@ -114,6 +115,26 @@
                                             </span>
                                         @else
                                             <span class="text-gray-400">غير محدد</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-5 py-4 whitespace-nowrap">
+                                        @if($item->status === \App\Models\DailyRosterItem::STATUS_ABSENT)
+                                            @php $state = $item->getInvestigationState(); @endphp
+                                            @if($state === 'investigated')
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200" title="رقم القيد: {{ $item->investigation_number }}">
+                                                    تم التحقيق ({{ $item->investigation_number }})
+                                                </span>
+                                            @elseif($state === 'overdue')
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-rose-100 text-rose-800 border border-rose-300">
+                                                    لم يتم التحقيق
+                                                </span>
+                                            @else
+                                                <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+                                                    قيد المتابعة
+                                                </span>
+                                            @endif
+                                        @else
+                                            <span class="text-gray-300 text-xs">—</span>
                                         @endif
                                     </td>
                                     <td class="px-5 py-4 text-gray-500">

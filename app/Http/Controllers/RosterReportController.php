@@ -106,9 +106,10 @@ class RosterReportController extends Controller
             $handle = fopen('php://output', 'w');
             fprintf($handle, chr(0xEF).chr(0xBB).chr(0xBF)); // UTF-8 BOM
 
-            fputcsv($handle, ['التاريخ', 'الجهة التنظيمية', 'المسار الإداري', 'اسم الموظف', 'رقم الهوية', 'الحالة', 'ملاحظات', 'حالة السجل']);
+            fputcsv($handle, ['التاريخ', 'الجهة التنظيمية', 'المسار الإداري', 'اسم الموظف', 'رقم الهوية', 'الحالة', 'المساءلة والتحقيق', 'رقم التحقيق', 'ملاحظات', 'حالة السجل']);
 
             foreach ($records as $item) {
+                $investigationLabel = $item->status === DailyRosterItem::STATUS_ABSENT ? $item->investigation_label : '—';
                 fputcsv($handle, [
                     $item->dailyRoster->date->toDateString(),
                     $item->dailyRoster->unit_name_snapshot ?? ($item->dailyRoster->organizationalUnit->name ?? ''),
@@ -116,6 +117,8 @@ class RosterReportController extends Controller
                     $item->employee_name_snapshot ?? ($item->employee->name ?? ''),
                     $item->employee_national_id_snapshot ?? ($item->employee->masked_national_id ?? ''),
                     $item->status ?? 'غير محدد',
+                    $investigationLabel,
+                    $item->investigation_number ?? '',
                     $item->notes ?? '',
                     $item->dailyRoster->status_label,
                 ]);
