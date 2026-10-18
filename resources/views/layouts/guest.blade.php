@@ -5,7 +5,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-        <title>{{ config('app.name', 'نظام إدارة الحضور والتحضير') }}</title>
+        <title>{{ config('app.name', 'منظومة ضابط') }}</title>
 
         <!-- Fonts -->
         <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -37,8 +37,8 @@
                         </svg>
                     </div>
                     <div class="text-right">
-                        <span class="text-2xl font-black text-white tracking-tight block">نظام الحضور والتحضير</span>
-                        <span class="text-[11px] font-semibold text-indigo-300 tracking-wider uppercase block">منظومة المتابعة والقيادة</span>
+                        <span class="text-2xl font-black text-white tracking-tight block">منظومة ضـابط</span>
+                        <span class="text-[11px] font-semibold text-indigo-300 tracking-wider uppercase block">إدارة الحضور والجاهزية الميدانية</span>
                     </div>
                 </a>
             </div>
@@ -50,7 +50,7 @@
 
             <!-- Bottom Copyright -->
             <div class="mt-8 text-center text-xs text-slate-400">
-                <p>جميع الحقوق محفوظة &copy; {{ date('Y') }} — نظام الحضور والتحضير الإلكتروني المعتمد</p>
+                <p>جميع الحقوق محفوظة &copy; {{ date('Y') }} — منظومة ضـابط الإلكترونية المعتمدة</p>
             </div>
         </div>
     </body>
