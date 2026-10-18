@@ -120,14 +120,13 @@ class RealOrganizationDataSeeder extends Seeder
             $superAdmin = User::firstOrCreate(
                 ['email' => 'admin@example.com'],
                 [
-                    'name' => 'اللواء عبد الله الشمري (المسؤول الأول)',
+                    'name' => 'المسؤول الأول',
                     'password' => $defaultPassword,
                     'role' => 'admin',
                     'is_active' => true,
                     'force_password_change' => false,
                 ]
             );
-            $superAdmin->update(['name' => 'اللواء عبد الله الشمري (المسؤول الأول)']);
 
             UserUnitAssignment::firstOrCreate(
                 [
@@ -153,7 +152,6 @@ class RealOrganizationDataSeeder extends Seeder
                     'force_password_change' => false,
                 ]
             );
-            $branchAdmin->update(['name' => 'العميد إبراهيم الغامدي (قائد القيادة الفرعية الأولى)']);
 
             UserUnitAssignment::updateOrCreate(
                 [
@@ -179,7 +177,6 @@ class RealOrganizationDataSeeder extends Seeder
                     'force_password_change' => false,
                 ]
             );
-            $center1Admin->update(['name' => 'الرائد عبد الرحمن الزهراني (قائد المركز الأول)']);
 
             UserUnitAssignment::updateOrCreate(
                 [
