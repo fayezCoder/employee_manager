@@ -30,7 +30,7 @@
                     <span class="text-[10px] bg-indigo-100 text-indigo-700 font-semibold px-2 py-0.5 rounded-lg" x-text="showDemo ? 'إخفاء' : 'عرض'"></span>
                 </div>
 
-                <div x-show="showDemo" x-collapse class="mt-3 pt-3 border-t border-indigo-100/60 space-y-2">
+                <div x-show="showDemo" x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 -translate-y-1" x-transition:enter-end="opacity-100 translate-y-0" x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100 translate-y-0" x-transition:leave-end="opacity-0 -translate-y-1" class="mt-3 pt-3 border-t border-indigo-100/60 space-y-2">
                     <p class="text-[11px] text-slate-600 leading-relaxed">
                         اختر أحد الأدوار القيادية لتعبئة الحساب تلقائياً واستعراض شاشات النظام:
                     </p>
