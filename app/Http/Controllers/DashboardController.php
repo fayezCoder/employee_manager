@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\AttendanceRecord;
+use App\Models\Employee;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -14,7 +15,7 @@ class DashboardController extends Controller
         $user = $request->user();
 
         if ($user->isAdmin()) {
-            $activeEmployeesCount = User::active()->where('role', 'employee')->count();
+            $activeEmployeesCount = Employee::where('is_active', true)->count();
             $today = Carbon::now('Asia/Riyadh')->toDateString();
 
             $todayCheckInsCount = AttendanceRecord::where('date', $today)->count();

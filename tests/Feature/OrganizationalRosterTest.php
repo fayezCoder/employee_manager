@@ -774,6 +774,70 @@ class OrganizationalRosterTest extends TestCase
             'org_unit_id' => $this->center1->id,
         ]);
     }
+
+    public function test_dashboard_displays_roster_employees_count()
+    {
+        // Create 3 active employees
+        Employee::create([
+            'name' => 'موظف 1',
+            'national_id' => '1111111111',
+            'org_unit_id' => $this->center1->id,
+            'is_active' => true,
+        ]);
+        Employee::create([
+            'name' => 'موظف 2',
+            'national_id' => '2222222222',
+            'org_unit_id' => $this->center1->id,
+            'is_active' => true,
+        ]);
+        Employee::create([
+            'name' => 'موظف غير نشط',
+            'national_id' => '3333333333',
+            'org_unit_id' => $this->center1->id,
+            'is_active' => false,
+        ]);
+
+        $response = $this->actingAs($this->superAdmin)->get(route('dashboard'));
+        $response->assertOk();
+        $response->assertSee('موظفو الكشوفات الفعّالون');
+        $response->assertViewHas('activeEmployeesCount', 2);
+    }
+
+    public function test_system_reset_demo_action_clears_data_while_keeping_admin_and_structure()
+    {
+        // Create a test employee
+        Employee::create([
+            'name' => 'موظف تجريبي للحذف',
+            'national_id' => '1999999999',
+            'org_unit_id' => $this->center1->id,
+            'is_active' => true,
+        ]);
+
+        // Create a test non-admin user
+        $testUser = User::create([
+            'name' => 'مستخدم تجريبي',
+            'email' => 'testuser@example.com',
+            'password' => bcrypt('password'),
+            'role' => 'employee',
+            'is_active' => true,
+        ]);
+
+        $this->assertEquals(1, Employee::count());
+        $this->assertTrue(User::where('email', 'testuser@example.com')->exists());
+
+        // Perform reset demo data via system deploy route
+        $response = $this->actingAs($this->superAdmin)->get(route('system.deploy-migrate', ['action' => 'reset_demo']));
+        $response->assertOk();
+        $response->assertSee('تم تصفير البيانات التجريبية بنجاح');
+
+        // Check that demo employee and demo user were removed
+        $this->assertEquals(0, Employee::count());
+        $this->assertFalse(User::where('email', 'testuser@example.com')->exists());
+
+        // Super admin and org units must still exist intact
+        $this->assertTrue(User::where('email', $this->superAdmin->email)->exists());
+        $this->assertDatabaseHas('organizational_units', ['id' => $this->center1->id]);
+    }
 }
 
 

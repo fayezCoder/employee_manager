@@ -51,7 +51,10 @@ class SystemDeploymentController extends Controller
         $success = true;
 
         try {
-            if ($action === 'migrate' || $request->isMethod('post')) {
+            if ($action === 'reset_demo') {
+                $this->resetDemoData();
+                $output = 'تم تصفير البيانات التجريبية بنجاح. النظام جاهز للبيانات الحقيقية.';
+            } elseif ($action === 'migrate' || $request->isMethod('post')) {
                 // Run database migrations forcefully for production
                 Artisan::call('migrate', ['--force' => true]);
                 $output = Artisan::output();
@@ -104,6 +107,66 @@ class SystemDeploymentController extends Controller
             return 'تم إنشاء الهيكل التنظيمي المعتمد وتغذية بيانات الموظفين والمسؤولين بنجاح.';
         } catch (\Throwable $e) {
             return 'خطأ أثناء تهيئة الهيكل: ' . $e->getMessage();
+        }
+    }
+
+    /**
+     * Reset demo data: clear all employees, rosters, attendance, and test users,
+     * leaving only the Super Admin account and the Organizational Structure intact.
+     */
+    protected function resetDemoData(): void
+    {
+        DB::transaction(function () {
+            // Find super admin user IDs to keep
+            $superAdminIds = \App\Models\User::where('role', 'admin')
+                ->orWhere('email', 'admin@example.com')
+                ->pluck('id')
+                ->toArray();
+
+            // Clear operational roster tables
+            if (Schema::hasTable('daily_roster_items')) {
+                DB::table('daily_roster_items')->delete();
+            }
+            if (Schema::hasTable('daily_rosters')) {
+                DB::table('daily_rosters')->delete();
+            }
+            if (Schema::hasTable('roster_audit_logs')) {
+                DB::table('roster_audit_logs')->delete();
+            }
+            if (Schema::hasTable('roster_workflow_events')) {
+                DB::table('roster_workflow_events')->delete();
+            }
+
+            // Clear attendance records
+            if (Schema::hasTable('attendance_records')) {
+                DB::table('attendance_records')->delete();
+            }
+
+            // Clear employees table
+            if (Schema::hasTable('employees')) {
+                DB::table('employees')->delete();
+            }
+
+            // Clear user unit assignments except for super admins
+            if (Schema::hasTable('user_unit_assignments')) {
+                DB::table('user_unit_assignments')
+                    ->whereNotIn('user_id', $superAdminIds)
+                    ->delete();
+            }
+
+            // Clear structure audit logs if needed
+            if (Schema::hasTable('structure_audit_logs')) {
+                DB::table('structure_audit_logs')->delete();
+            }
+
+            // Delete non-admin demo users
+            \App\Models\User::whereNotIn('id', $superAdminIds)->delete();
+        });
+
+        Artisan::call('optimize:clear');
+
+        if (function_exists('opcache_reset')) {
+            @opcache_reset();
         }
     }
 

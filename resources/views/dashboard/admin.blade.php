@@ -22,15 +22,15 @@
         <!-- Metric Cards -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             <!-- Active Employees -->
-            <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex items-center justify-between">
+            <a href="{{ route('roster-employees.index') }}" class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex items-center justify-between hover:border-blue-300 hover:shadow-md transition group">
                 <div>
-                    <span class="block text-xs font-semibold text-gray-500">الموظفون الفعّالون</span>
+                    <span class="block text-xs font-semibold text-gray-500 group-hover:text-blue-600 transition">موظفو الكشوفات الفعّالون</span>
                     <span class="text-3xl font-extrabold text-gray-900 mt-1 block">{{ $activeEmployeesCount }}</span>
                 </div>
-                <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center">
+                <div class="w-12 h-12 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center group-hover:bg-blue-100 transition">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
                 </div>
-            </div>
+            </a>
 
             <!-- Checked-in Today -->
             <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex items-center justify-between">
