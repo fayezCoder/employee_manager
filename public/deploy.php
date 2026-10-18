@@ -87,6 +87,13 @@ $optimizeOutput = '';
 $seedOutput = '';
 $error = null;
 $success = true;
+$gitOutput = '';
+
+// Execute git pull to fetch newest code if git repo exists
+$repoDir = dirname(__DIR__);
+if (is_dir($repoDir . '/.git')) {
+    $gitOutput = (string) shell_exec("cd " . escapeshellarg($repoDir) . " && git pull origin main 2>&1");
+}
 
 try {
     // Run Migrations
@@ -255,11 +262,20 @@ foreach ($coreTables as $tableName => $tableLabel) {
         </div>
 
         <!-- Output Log -->
-        <?php if (!empty($migrateOutput) || !empty($optimizeOutput)): ?>
+        <?php if (!empty($gitOutput) || !empty($migrateOutput) || !empty($optimizeOutput)): ?>
             <div class="bg-slate-900 text-slate-200 rounded-2xl shadow-sm p-6 space-y-4 text-xs font-mono" dir="ltr">
-                <div class="border-b border-slate-800 pb-2 text-slate-400 font-bold">Migration Console Log</div>
+                <div class="border-b border-slate-800 pb-2 text-slate-400 font-bold">Deploy & Git Log</div>
+                <?php if (!empty($gitOutput)): ?>
+                    <div>
+                        <div class="text-emerald-400 font-bold mb-1">Git Pull Result:</div>
+                        <pre class="whitespace-pre-wrap leading-relaxed text-slate-300"><?php echo htmlspecialchars(trim($gitOutput)); ?></pre>
+                    </div>
+                <?php endif; ?>
                 <?php if (!empty($migrateOutput)): ?>
-                    <pre class="whitespace-pre-wrap leading-relaxed text-slate-300"><?php echo htmlspecialchars(trim($migrateOutput)); ?></pre>
+                    <div class="pt-2 border-t border-slate-800">
+                        <div class="text-amber-400 font-bold mb-1">Migration Result:</div>
+                        <pre class="whitespace-pre-wrap leading-relaxed text-slate-300"><?php echo htmlspecialchars(trim($migrateOutput)); ?></pre>
+                    </div>
                 <?php endif; ?>
                 <?php if (!empty($optimizeOutput)): ?>
                     <div class="pt-2 border-t border-slate-800">
