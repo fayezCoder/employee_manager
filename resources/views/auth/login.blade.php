@@ -13,9 +13,12 @@
             'dept_admin@example.com',
             'sara@example.com',
         ])->get()->keyBy('email');
+
+        // Only consider system in demo mode if other demo accounts exist
+        $hasDemoManagers = $demoUsers->except('admin@example.com')->isNotEmpty();
     @endphp
 
-    @if($demoUsers->isNotEmpty())
+    @if($hasDemoManagers)
         <!-- Demo Banner & One-Click Auto-Fill (Visible only during demo mode) -->
         <div class="mb-6 p-4 bg-slate-50 border border-indigo-100 rounded-xl">
             <div class="flex items-center justify-between gap-2 mb-2">
@@ -30,12 +33,12 @@
             </p>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                 @if(isset($demoUsers['admin@example.com']))
-                    <button type="button" onclick="fillCredentials('admin@example.com', 'password')" class="w-full text-right p-2.5 bg-white hover:bg-indigo-50 border border-indigo-200 rounded-lg text-xs font-medium text-slate-800 transition flex flex-col gap-0.5 shadow-sm group">
+                    <button type="button" onclick="fillCredentials('{{ $demoUsers['admin@example.com']->email }}', 'password')" class="w-full text-right p-2.5 bg-white hover:bg-indigo-50 border border-indigo-200 rounded-lg text-xs font-medium text-slate-800 transition flex flex-col gap-0.5 shadow-sm group">
                         <span class="text-indigo-600 font-bold group-hover:text-indigo-700 flex items-center justify-between">
-                            <span>👑 المسؤول الأول (اللواء عبد الله)</span>
+                            <span>👑 {{ $demoUsers['admin@example.com']->name }}</span>
                             <span class="text-[10px] bg-indigo-100 text-indigo-700 px-1.5 py-0.5 rounded">تعبئة</span>
                         </span>
-                        <span class="text-slate-500 text-[11px] dir-ltr text-right">admin@example.com</span>
+                        <span class="text-slate-500 text-[11px] dir-ltr text-right">{{ $demoUsers['admin@example.com']->email }}</span>
                     </button>
                 @endif
 
