@@ -106,12 +106,18 @@
 
                 <a href="{{ route('system.deploy-migrate', array_filter(['key' => $key, 'action' => 'reset_demo'])) }}"
                    class="inline-flex items-center gap-2 px-4 py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 rounded-xl text-sm font-medium transition"
-                   onclick="return confirm('تنبيه هام جداً:\nسيتم مسح كافة الموظفين التجريبيين وسجلات التحضير والمستخدمين التجريبيين، مع الإبقاء فقط على حساب المسؤول الأول والهيكل التنظيمي.\n\nهل أنت متأكد من تصفير البيانات للبدء من جديد؟');">
+                   onclick="return confirmResetDemo();">
                     <svg class="w-4 h-4 text-rose-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                     </svg>
                     <span>تصفير البيانات التجريبية (لبدء إدخال بيانات حقيقية)</span>
                 </a>
+                <script>
+                    function confirmResetDemo() {
+                        const answer = prompt('⚠️ تحذير أمني شديد الحساسية:\n\nسيتم مسح كافة الموظفين وسجلات التحضير والمستخدمين، والإبقاء فقط على حساب المسؤول الأول والهيكل التنظيمي.\n\nلتأكيد المسح ومنع أي ضغط غير مقصود، اكتب كلمة (تصفير) في المربع أدناه ثم اضغط موافق:');
+                        return answer === 'تصفير';
+                    }
+                </script>
             </div>
         </div>
 
