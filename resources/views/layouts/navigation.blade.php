@@ -59,13 +59,6 @@
                             تحديث قاعدة البيانات
                         </a>
                     @endcan
-
-                    @can('admin')
-                        <a href="{{ route('attendance.index') }}"
-                           class="px-3 py-2 rounded-md text-sm font-medium transition text-gray-500 hover:text-gray-700 hover:bg-gray-50">
-                            النظام السابق
-                        </a>
-                    @endcan
                 </div>
             </div>
 
@@ -133,10 +126,6 @@
             <a href="{{ route('org-units.index') }}" class="block px-3 py-2 rounded-md text-base font-medium text-indigo-700 hover:bg-indigo-50 font-semibold">الهيكل التنظيمي</a>
             <a href="{{ route('user-management.index') }}" class="block px-3 py-2 rounded-md text-base font-medium text-indigo-700 hover:bg-indigo-50 font-semibold">إدارة المستخدمين</a>
             <a href="{{ route('system.deploy-migrate') }}" class="block px-3 py-2 rounded-md text-base font-medium text-indigo-700 hover:bg-indigo-50 font-semibold">تحديث قاعدة البيانات</a>
-        @endcan
-
-        @can('admin')
-            <a href="{{ route('attendance.index') }}" class="block px-3 py-2 rounded-md text-sm text-gray-500 hover:bg-gray-100">النظام السابق (الحضور والانصراف)</a>
         @endcan
         <div class="border-t border-gray-200 pt-2">
             <div class="px-3 py-1 font-semibold text-gray-800">{{ Auth::user()->name }}</div>
