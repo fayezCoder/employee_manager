@@ -49,28 +49,25 @@ class AbsenceInvestigationController extends Controller
 
         $items = $query->orderBy('date', 'desc')->paginate(20);
 
-        // Calculate KPI metrics
-        $baseKpiQuery = DailyRosterItem::where('status', DailyRosterItem::STATUS_ABSENT);
+        // Calculate KPI metrics efficiently in a single query
+        $sevenDaysAgo = now('Asia/Riyadh')->subDays(7)->startOfDay()->toDateTimeString();
+
+        $kpiQuery = DailyRosterItem::where('status', DailyRosterItem::STATUS_ABSENT);
         if ($permittedUnitIds !== null) {
-            $baseKpiQuery->whereHas('dailyRoster', fn($q) => $q->whereIn('org_unit_id', $permittedUnitIds));
+            $kpiQuery->whereHas('dailyRoster', fn($q) => $q->whereIn('org_unit_id', $permittedUnitIds));
         }
 
-        $sevenDaysAgo = now('Asia/Riyadh')->subDays(7)->startOfDay();
+        $kpis = $kpiQuery->selectRaw("
+            COUNT(*) as total_absent,
+            SUM(CASE WHEN investigation_number IS NOT NULL AND investigation_number != '' THEN 1 ELSE 0 END) as investigated,
+            SUM(CASE WHEN (investigation_number IS NULL OR investigation_number = '') AND date < '{$sevenDaysAgo}' THEN 1 ELSE 0 END) as overdue,
+            SUM(CASE WHEN (investigation_number IS NULL OR investigation_number = '') AND date >= '{$sevenDaysAgo}' THEN 1 ELSE 0 END) as pending
+        ")->first();
 
-        $totalAbsentCount = (clone $baseKpiQuery)->count();
-        $investigatedCount = (clone $baseKpiQuery)->whereNotNull('investigation_number')->where('investigation_number', '!=', '')->count();
-        $overdueCount = (clone $baseKpiQuery)
-            ->where(function ($q) {
-                $q->whereNull('investigation_number')->orWhere('investigation_number', '');
-            })
-            ->where('date', '<', $sevenDaysAgo)
-            ->count();
-        $pendingCount = (clone $baseKpiQuery)
-            ->where(function ($q) {
-                $q->whereNull('investigation_number')->orWhere('investigation_number', '');
-            })
-            ->where('date', '>=', $sevenDaysAgo)
-            ->count();
+        $totalAbsentCount = (int) ($kpis->total_absent ?? 0);
+        $investigatedCount = (int) ($kpis->investigated ?? 0);
+        $overdueCount = (int) ($kpis->overdue ?? 0);
+        $pendingCount = (int) ($kpis->pending ?? 0);
 
         $unitsQuery = OrganizationalUnit::where('is_active', true)->orderBy('name');
         if ($permittedUnitIds !== null) {

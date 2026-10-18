@@ -86,15 +86,32 @@ class User extends Authenticatable
         return $this->hasOne(Employee::class);
     }
 
+    protected ?bool $cachedIsSuperAdmin = null;
+    protected array $cachedPermittedIds = [];
+
     public function isSuperAdmin(): bool
     {
         if ($this->isAdmin()) {
             return true;
         }
 
-        return $this->unitAssignments()
+        if ($this->cachedIsSuperAdmin !== null) {
+            return $this->cachedIsSuperAdmin;
+        }
+
+        // If relation already loaded, use collection instead of query
+        if ($this->relationLoaded('unitAssignments')) {
+            $this->cachedIsSuperAdmin = $this->unitAssignments
+                ->where('role', UserUnitAssignment::ROLE_SUPER_ADMIN)
+                ->isNotEmpty();
+            return $this->cachedIsSuperAdmin;
+        }
+
+        $this->cachedIsSuperAdmin = $this->unitAssignments()
             ->where('role', UserUnitAssignment::ROLE_SUPER_ADMIN)
             ->exists();
+
+        return $this->cachedIsSuperAdmin;
     }
 
     /**
@@ -107,7 +124,16 @@ class User extends Authenticatable
             return null; // Null signifies unrestricted access to all units
         }
 
-        $assignments = $this->unitAssignments;
+        $cacheKey = $requiredPermission ?? '__all__';
+        if (array_key_exists($cacheKey, $this->cachedPermittedIds)) {
+            return $this->cachedPermittedIds[$cacheKey];
+        }
+
+        // Eager load organizationalUnit to prevent N+1 queries when reading descendants
+        $assignments = $this->relationLoaded('unitAssignments')
+            ? $this->unitAssignments
+            : $this->unitAssignments()->with('organizationalUnit')->get();
+
         $unitIds = [];
 
         foreach ($assignments as $assignment) {
@@ -126,7 +152,10 @@ class User extends Authenticatable
             }
         }
 
-        return array_values(array_unique($unitIds));
+        $result = array_values(array_unique($unitIds));
+        $this->cachedPermittedIds[$cacheKey] = $result;
+
+        return $result;
     }
 
     /**
