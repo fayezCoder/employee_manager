@@ -44,21 +44,21 @@
 
                         @if(isset($demoUsers['branch_admin@example.com']))
                             <button type="button" onclick="fillCredentials('branch_admin@example.com', 'password')" class="text-right p-2 bg-white hover:bg-purple-50 border border-purple-200/80 rounded-xl text-xs font-medium text-slate-800 transition flex items-center justify-between shadow-sm">
-                                <span class="font-bold text-purple-950 truncate">🏢 العميد إبراهيم (قيادة فرعية)</span>
+                                <span class="font-bold text-purple-950 truncate">🏢 {{ $demoUsers['branch_admin@example.com']->name }} (قيادة فرعية)</span>
                                 <span class="text-[10px] text-purple-600 font-semibold shrink-0">تعبئة</span>
                             </button>
                         @endif
 
                         @if(isset($demoUsers['unit_admin@example.com']))
                             <button type="button" onclick="fillCredentials('unit_admin@example.com', 'password')" class="text-right p-2 bg-white hover:bg-amber-50 border border-amber-200/80 rounded-xl text-xs font-medium text-slate-800 transition flex items-center justify-between shadow-sm">
-                                <span class="font-bold text-amber-950 truncate">📋 الرائد عبد الرحمن (مركز 1)</span>
+                                <span class="font-bold text-amber-950 truncate">📋 {{ $demoUsers['unit_admin@example.com']->name }} (مركز 1)</span>
                                 <span class="text-[10px] text-amber-600 font-semibold shrink-0">تعبئة</span>
                             </button>
                         @endif
 
                         @if(isset($demoUsers['division_admin@example.com']))
                             <button type="button" onclick="fillCredentials('division_admin@example.com', 'password')" class="text-right p-2 bg-white hover:bg-sky-50 border border-sky-200/80 rounded-xl text-xs font-medium text-slate-800 transition flex items-center justify-between shadow-sm">
-                                <span class="font-bold text-sky-950 truncate">🏢 العقيد محمد (شعبة إدارة)</span>
+                                <span class="font-bold text-sky-950 truncate">🏢 {{ $demoUsers['division_admin@example.com']->name }} (شعبة إدارة)</span>
                                 <span class="text-[10px] text-sky-600 font-semibold shrink-0">تعبئة</span>
                             </button>
                         @endif

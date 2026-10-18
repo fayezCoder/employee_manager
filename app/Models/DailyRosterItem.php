@@ -48,8 +48,9 @@ class DailyRosterItem extends Model
             return 'investigated'; // تم التحقيق
         }
 
-        $absenceDate = $this->date ?? $this->created_at;
-        $daysDiff = (int) $absenceDate->diffInDays(now('Asia/Riyadh'), false);
+        $absenceDate = ($this->date ?? $this->created_at)->copy()->setTimezone('Asia/Riyadh')->startOfDay();
+        $today = now('Asia/Riyadh')->startOfDay();
+        $daysDiff = (int) $absenceDate->diffInDays($today, false);
 
         if ($daysDiff > 7) {
             return 'overdue'; // لم يتم التحقيق (انتهت المهلة)
@@ -60,10 +61,14 @@ class DailyRosterItem extends Model
 
     public function getInvestigationLabelAttribute(): string
     {
+        $absenceDate = ($this->date ?? $this->created_at)->copy()->setTimezone('Asia/Riyadh')->startOfDay();
+        $today = now('Asia/Riyadh')->startOfDay();
+        $daysDiff = (int) $absenceDate->diffInDays($today, false);
+
         return match ($this->getInvestigationState()) {
             'investigated' => 'تم التحقيق (قيد: ' . $this->investigation_number . ')',
             'overdue' => 'لم يتم التحقيق',
-            'pending' => 'قيد المتابعة (باقي ' . max(0, 7 - (int) ($this->date ?? $this->created_at)->diffInDays(now('Asia/Riyadh'), false)) . ' يوم)',
+            'pending' => 'قيد المتابعة (باقي ' . max(0, 7 - $daysDiff) . ' يوم)',
             default => '—',
         };
     }
